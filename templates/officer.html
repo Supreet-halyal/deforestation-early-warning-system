@@ -1,0 +1,5027 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Authorized Officer Dashboard
+    </title>
+
+
+    <!-- ================================================= -->
+    <!-- LEAFLET -->
+    <!-- ================================================= -->
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <!-- ================================================= -->
+    <!-- CSS -->
+    <!-- ================================================= -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                #f4f7f4;
+
+            color:
+                #222;
+
+        }
+
+
+        /* =================================================
+           HEADER
+        ================================================= */
+
+        header {
+
+            background:
+                #263238;
+
+            color:
+                white;
+
+            padding:
+                22px;
+
+        }
+
+
+        header h1 {
+
+            margin:
+                0;
+
+            font-size:
+                30px;
+
+        }
+
+
+        header p {
+
+            margin:
+                7px 0 0;
+
+            color:
+                #d7dee0;
+
+        }
+
+
+        /* =================================================
+           CONTAINER
+        ================================================= */
+
+        .container {
+
+            max-width:
+                1400px;
+
+            margin:
+                auto;
+
+            padding:
+                20px;
+
+        }
+
+
+        /* =================================================
+           SECTION
+        ================================================= */
+
+        .section {
+
+            background:
+                white;
+
+            padding:
+                20px;
+
+            border-radius:
+                12px;
+
+            margin-bottom:
+                20px;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0,0,0,0.08);
+
+        }
+
+
+        .section h2 {
+
+            margin-top:
+                0;
+
+            color:
+                #263238;
+
+        }
+
+
+        /* =================================================
+           MONITORING
+        ================================================= */
+
+        .monitoring-section {
+
+            border-left:
+                5px solid #1565c0;
+
+        }
+
+
+        .monitoring-panel {
+
+            background:
+                #f5f9ff;
+
+            border-radius:
+                10px;
+
+            padding:
+                20px;
+
+            border:
+                1px solid #d6e6f7;
+
+        }
+
+
+        .monitoring-status {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                10px;
+
+            font-size:
+                20px;
+
+            color:
+                #1b5e20;
+
+            margin-bottom:
+                20px;
+
+        }
+
+
+        .status-dot {
+
+            width:
+                14px;
+
+            height:
+                14px;
+
+            background:
+                #2e7d32;
+
+            border-radius:
+                50%;
+
+            display:
+                inline-block;
+
+            animation:
+                monitoringPulse 2s infinite;
+
+        }
+
+
+        @keyframes monitoringPulse {
+
+            0% {
+
+                opacity:
+                    1;
+
+                transform:
+                    scale(1);
+
+            }
+
+            50% {
+
+                opacity:
+                    0.4;
+
+                transform:
+                    scale(1.25);
+
+            }
+
+            100% {
+
+                opacity:
+                    1;
+
+                transform:
+                    scale(1);
+
+            }
+
+        }
+
+
+        .monitoring-info {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap:
+                15px;
+
+        }
+
+
+        .monitoring-info div {
+
+            background:
+                white;
+
+            padding:
+                15px;
+
+            border-radius:
+                8px;
+
+        }
+
+
+        .monitoring-info span {
+
+            display:
+                block;
+
+            font-size:
+                13px;
+
+            color:
+                #666;
+
+            margin-bottom:
+                6px;
+
+        }
+
+
+        .monitoring-info strong {
+
+            font-size:
+                17px;
+
+        }
+
+
+        .monitoring-message {
+
+            margin-top:
+                15px;
+
+            padding:
+                12px;
+
+            border-radius:
+                8px;
+
+            background:
+                #e3f2fd;
+
+            color:
+                #1565c0;
+
+        }
+
+
+        .monitoring-panel small {
+
+            display:
+                block;
+
+            margin-top:
+                15px;
+
+            color:
+                #666;
+
+        }
+
+
+        /* =================================================
+           STATISTICS
+        ================================================= */
+
+        .stats {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap:
+                15px;
+
+            margin-bottom:
+                20px;
+
+        }
+
+
+        .stat-card {
+
+            background:
+                white;
+
+            padding:
+                20px;
+
+            border-radius:
+                10px;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0,0,0,0.08);
+
+        }
+
+
+        .stat-card h3 {
+
+            margin:
+                0 0 10px;
+
+            color:
+                #555;
+
+        }
+
+
+        .stat-number {
+
+            font-size:
+                30px;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        /* =================================================
+           MAP
+        ================================================= */
+
+        #officerMap {
+
+            height:
+                500px;
+
+            width:
+                100%;
+
+            border-radius:
+                10px;
+
+            border:
+                2px solid #ddd;
+
+        }
+
+
+        /* =================================================
+           TABLE
+        ================================================= */
+
+        .table-container {
+
+            overflow-x:
+                auto;
+
+        }
+
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+        }
+
+
+        th,
+        td {
+
+            padding:
+                12px;
+
+            border-bottom:
+                1px solid #ddd;
+
+            text-align:
+                center;
+
+        }
+
+
+        th {
+
+            background:
+                #263238;
+
+            color:
+                white;
+
+        }
+
+
+        tr:hover {
+
+            background:
+                #f5f5f5;
+
+        }
+
+
+        /* =================================================
+           RISK
+        ================================================= */
+
+        .high {
+
+            color:
+                #c62828;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .moderate {
+
+            color:
+                #ef6c00;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .low {
+
+            color:
+                #2e7d32;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        /* =================================================
+           STATUS
+        ================================================= */
+
+        .new {
+
+            color:
+                #c62828;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .acknowledged {
+
+            color:
+                #2e7d32;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        /* =================================================
+           BUTTON
+        ================================================= */
+
+        button {
+
+            border:
+                none;
+
+            padding:
+                9px 14px;
+
+            border-radius:
+                6px;
+
+            cursor:
+                pointer;
+
+            background:
+                #1565c0;
+
+            color:
+                white;
+
+        }
+
+
+        button:hover {
+
+            opacity:
+                0.85;
+
+        }
+
+
+        .done {
+
+            color:
+                #2e7d32;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        /* =================================================
+           EMPTY / ERROR
+        ================================================= */
+
+        .empty {
+
+            padding:
+                20px;
+
+            text-align:
+                center;
+
+            color:
+                #666;
+
+        }
+
+
+        .error-message {
+
+            color:
+                #c62828;
+
+            padding:
+                15px;
+
+            background:
+                #ffebee;
+
+            border-radius:
+                8px;
+
+        }
+
+
+
+
+        /* =================================================
+           MOBILE PUSH NOTIFICATIONS
+        ================================================= */
+
+        .notification-panel {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-left: 5px solid #ffb300;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .notification-status {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 7px;
+            background: #f5f5f5;
+            color: #455a64;
+            font-size: 13px;
+        }
+
+        .notification-ready {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .notification-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .notification-error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* =================================================
+           SELECTED LOCATION DETAILS
+        ================================================= */
+
+        .location-details {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 12px;
+
+            margin-top: 18px;
+
+        }
+
+        .detail-card {
+
+            background: #f7f9fa;
+
+            border: 1px solid #e0e5e7;
+
+            border-radius: 9px;
+
+            padding: 14px;
+
+            text-align: center;
+
+        }
+
+        .detail-card span {
+
+            display: block;
+
+            color: #666;
+
+            font-size: 12px;
+
+            margin-bottom: 6px;
+
+        }
+
+        .detail-card strong {
+
+            display: block;
+
+            font-size: 18px;
+
+        }
+
+        .detail-high {
+            color: #c62828;
+        }
+
+        .detail-moderate {
+            color: #ef6c00;
+        }
+
+        .detail-low {
+            color: #2e7d32;
+        }
+
+        .detail-neutral {
+            color: #263238;
+        }
+
+        .location-meta {
+
+            margin-top: 15px;
+
+            padding: 12px;
+
+            background: #eef4f6;
+
+            border-radius: 8px;
+
+            line-height: 1.7;
+
+        }
+
+        .history-button {
+
+            margin-top: 15px;
+
+        }
+
+        @media (max-width: 900px) {
+
+            .location-details {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            .location-details {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+        }
+
+
+        /* =================================================
+           STORED LOCATION MARKERS
+        ================================================= */
+
+        .risk-marker {
+
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+
+            border: 3px solid white;
+
+            box-shadow:
+                0 1px 5px rgba(0,0,0,0.45);
+
+        }
+
+        .risk-high {
+            background: #c62828;
+        }
+
+        .risk-moderate {
+            background: #ef6c00;
+        }
+
+        .risk-low {
+            background: #2e7d32;
+        }
+
+        .risk-unknown {
+            background: #546e7a;
+        }
+
+        .map-legend {
+
+            background: white;
+
+            padding: 10px 12px;
+
+            border-radius: 8px;
+
+            box-shadow:
+                0 1px 5px rgba(0,0,0,0.25);
+
+            line-height: 24px;
+
+            font-size: 13px;
+
+        }
+
+        .legend-title {
+
+            font-weight: bold;
+
+            margin-bottom: 4px;
+
+        }
+
+        .legend-row {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+        }
+
+        .legend-dot {
+
+            width: 12px;
+            height: 12px;
+
+            border-radius: 50%;
+
+            display: inline-block;
+
+        }
+
+        .legend-high {
+            background: #c62828;
+        }
+
+        .legend-moderate {
+            background: #ef6c00;
+        }
+
+        .legend-low {
+            background: #2e7d32;
+        }
+
+        .legend-unknown {
+            background: #546e7a;
+        }
+
+
+
+        /* =================================================
+           SATELLITE CHANGE DETECTION
+        ================================================= */
+        .change-detection-panel {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f5f9ff;
+            border: 1px solid #d6e6f7;
+            border-radius: 8px;
+        }
+        .change-detection-status {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #455a64;
+        }
+        .change-detection-legend {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        .change-cell {
+            fill: #c62828;
+            fill-opacity: 0.42;
+            stroke: #b71c1c;
+            stroke-width: 1;
+        }
+
+        /* =================================================
+           MOBILE
+        ================================================= */
+
+        @media (max-width: 800px) {
+
+            .stats {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+
+            .monitoring-info {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .stats {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            header h1 {
+
+                font-size:
+                    23px;
+
+            }
+
+        }
+
+    
+        /* =================================================
+           REALISTIC COORDINATE SEARCH
+        ================================================= */
+
+        .coordinate-search {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 1000;
+            width: min(620px, calc(100% - 32px));
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255,255,255,.97);
+            border: 1px solid #dfe5e8;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.18);
+            box-sizing: border-box;
+        }
+
+        .coordinate-field {
+            position: relative;
+        }
+
+        .coordinate-field label {
+            position: absolute;
+            top: 6px;
+            left: 11px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #68747a;
+            text-transform: uppercase;
+            letter-spacing: .45px;
+            pointer-events: none;
+        }
+
+        .coordinate-search input {
+            width: 100%;
+            height: 48px;
+            box-sizing: border-box;
+            padding: 20px 11px 6px;
+            border: 1px solid #d3dce0;
+            border-radius: 8px;
+            background: #fff;
+            color: #263238;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .coordinate-search input:focus {
+            border-color: #607d8b;
+            box-shadow: 0 0 0 3px rgba(96,125,139,.12);
+        }
+
+        .coordinate-search button {
+            height: 48px;
+            min-width: 145px;
+            padding: 0 16px;
+            border: 0;
+            border-radius: 8px;
+            background: #263238;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .coordinate-search button:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,.20);
+        }
+
+        .coordinate-search-message {
+            grid-column: 1 / -1;
+            margin: 0 3px;
+            min-height: 15px;
+            font-size: 12px;
+        }
+
+        .map-search-help {
+            grid-column: 1 / -1;
+            margin: 0 3px;
+            color: #777;
+            font-size: 11px;
+        }
+
+        .search-success { color: #2e7d32; }
+        .search-warning { color: #ef6c00; }
+        .search-error { color: #c62828; }
+
+        @media (max-width: 700px) {
+            .coordinate-search {
+                position: relative;
+                top: auto;
+                left: auto;
+                width: calc(100% - 24px);
+                margin: 12px;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .coordinate-search button {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+        }
+
+
+        /* =================================================
+           MAP SEARCH POSITION FIX
+        ================================================= */
+
+        .map-wrapper {
+            position: relative;
+        }
+
+        .coordinate-search {
+            position: absolute !important;
+            top: 16px !important;
+            left: 16px !important;
+            z-index: 1001 !important;
+            margin: 0 !important;
+        }
+
+        #officerMap,
+        #map {
+            position: relative;
+        }
+
+        .searched-location-marker {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            background: #1565c0;
+            box-shadow:
+                0 0 0 3px rgba(21,101,192,.25),
+                0 2px 8px rgba(0,0,0,.45);
+        }
+
+
+        /* =================================================
+           REALISTIC SEARCH RESULT SUMMARY
+        ================================================= */
+
+        .coordinate-result-summary {
+            position: absolute;
+            top: 116px;
+            left: 16px;
+            z-index: 999;
+            width: min(620px, calc(100% - 32px));
+            padding: 14px 16px;
+            background: rgba(255,255,255,.98);
+            border: 1px solid #dfe5e8;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.16);
+        }
+
+        .result-summary-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #263238;
+        }
+
+        .result-summary-location {
+            margin-top: 5px;
+            color: #607d8b;
+            font-size: 12px;
+        }
+
+        .result-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .result-summary-grid > div {
+            padding: 9px;
+            background: #f6f8f9;
+            border-radius: 8px;
+        }
+
+        .result-summary-grid span {
+            display: block;
+            margin-bottom: 4px;
+            color: #707b80;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .result-summary-grid strong {
+            display: block;
+            font-size: 15px;
+            color: #263238;
+        }
+
+        .result-summary-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e9eb;
+            color: #607d8b;
+            font-size: 11px;
+        }
+
+        .result-summary-footer button {
+            padding: 7px 10px;
+            border: 0;
+            border-radius: 6px;
+            background: #263238;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .summary-high { color: #c62828 !important; }
+        .summary-moderate { color: #ef6c00 !important; }
+        .summary-low { color: #2e7d32 !important; }
+        .summary-neutral { color: #455a64 !important; }
+
+        @media (max-width: 700px) {
+            .coordinate-result-summary {
+                position: relative;
+                top: auto;
+                left: auto;
+                width: calc(100% - 24px);
+                margin: 0 12px 12px;
+            }
+
+            .result-summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .result-summary-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .result-summary-footer button {
+                width: 100%;
+            }
+        }
+
+
+        /* =================================================
+           ALERT DETAILS
+        ================================================= */
+
+        .alert-detail-box {
+            margin-top: 15px;
+            padding: 14px;
+            border: 1px solid #e1e6e8;
+            border-radius: 9px;
+            background: #fafbfb;
+        }
+
+        .alert-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .alert-detail-item {
+            padding: 10px;
+            background: white;
+            border: 1px solid #e6eaec;
+            border-radius: 7px;
+        }
+
+        .alert-detail-item span {
+            display: block;
+            font-size: 11px;
+            color: #707b80;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .alert-detail-item strong {
+            font-size: 14px;
+            color: #263238;
+        }
+
+        .alert-message-box {
+            margin-top: 10px;
+            padding: 11px;
+            border-left: 4px solid #607d8b;
+            background: #eef3f5;
+            border-radius: 5px;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+
+        .alert-status-new {
+            color: #c62828 !important;
+        }
+
+        .alert-status-acknowledged {
+            color: #2e7d32 !important;
+        }
+
+        .alert-action-button {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .alert-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        /* ALERT FILTERS */
+        .alert-filters {
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin:0 0 15px;
+            align-items:center;
+        }
+        .alert-filter-button {
+            background:#eceff1;
+            color:#263238;
+            border:1px solid #cfd8dc;
+            font-weight:700;
+        }
+        .alert-filter-button.active {
+            background:#263238;
+            color:white;
+            border-color:#263238;
+        }
+        .alert-filter-count {
+            margin-left:auto;
+            color:#607d8b;
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .alert-id-button {
+            background: transparent;
+            color: #1565c0;
+            padding: 4px 7px;
+            border: 1px solid #bbdefb;
+            border-radius: 5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .alert-id-button:hover {
+            background: #e3f2fd;
+            opacity: 1;
+        }
+
+        .locate-alert-button {
+            margin-right: 6px;
+            background: #263238;
+        }
+        @media (max-width:600px) {
+            .alert-filter-count { width:100%; margin-left:0; }
+        }
+
+</style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
+<body>
+
+
+<!-- ===================================================== -->
+<!-- HEADER -->
+<!-- ===================================================== -->
+
+<header>
+
+    <h1>
+        👮 Authorized Officer Dashboard
+    </h1>
+
+    <p>
+        Deforestation Early Warning Monitoring System
+    </p>
+
+</header>
+
+
+<div class="container">
+
+
+    <!-- ================================================= -->
+    <!-- MONITORING -->
+    <!-- ================================================= -->
+
+    <div class="section monitoring-section">
+
+        <h2>
+            🛰️ Automatic Monitoring
+        </h2>
+
+
+        <div class="monitoring-panel">
+
+
+            <div class="monitoring-status">
+
+                <span class="status-dot"></span>
+
+                <strong>
+                    Monitoring Active
+                </strong>
+
+            </div>
+
+
+            <div class="monitoring-info">
+
+
+                <div>
+
+                    <span>
+                        Monitoring Interval
+                    </span>
+
+                    <strong>
+                        30 Minutes
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Last Scheduled Check
+                    </span>
+
+                    <strong id="officerLastScan">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Next Scheduled Check
+                    </span>
+
+                    <strong id="officerNextScan">
+                        --
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="monitoring-message">
+
+                🔄
+
+                <span id="officerMonitoringMessage">
+
+                    System monitoring is active
+
+                </span>
+
+            </div>
+
+
+            <small>
+
+                Monitoring status indicator.
+                Satellite API requests are made only
+                when a location is manually selected.
+
+            </small>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- MOBILE NOTIFICATIONS -->
+    <!-- ================================================= -->
+
+    <div class="section notification-panel">
+
+        <h2>📱 Mobile Notifications</h2>
+
+        <p>
+            Enable notifications on this device to receive important
+            deforestation alerts from the officer dashboard.
+        </p>
+
+        <button type="button" id="enableNotificationsButton">
+            🔔 Enable Mobile Notifications
+        </button>
+
+        <button type="button" id="testNotificationButton" style="margin-left:8px;">
+            🧪 Send Test Notification
+        </button>
+
+        <button type="button" id="testEmailButton" style="margin-left:8px;">
+            📧 Send Test Email
+        </button>
+
+        <div id="notificationStatus" class="notification-status">
+            Notifications are not enabled on this device.
+        </div>
+
+        <small>
+            This step only registers notification permission on the current
+            browser/device. Actual alert delivery will be connected in the
+            next step.
+        </small>
+
+    </div>
+
+    <!-- ================================================= -->
+    <!-- STATISTICS -->
+    <!-- ================================================= -->
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <h3>
+                Total Alerts
+            </h3>
+
+            <div
+                id="totalAlerts"
+                class="stat-number"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                🔴 High Risk
+            </h3>
+
+            <div
+                id="highAlerts"
+                class="stat-number"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                🟡 Moderate Risk
+            </h3>
+
+            <div
+                id="moderateAlerts"
+                class="stat-number"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                🆕 New Alerts
+            </h3>
+
+            <div
+                id="newAlerts"
+                class="stat-number"
+            >
+                0
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ALERT MAP -->
+    <!-- ================================================= -->
+
+    <div class="section">
+
+        <h2>
+            🗺️ Alert Locations
+        </h2>
+
+        <p>
+            All stored monitoring locations are displayed on the map.
+            Marker color indicates the latest available risk level.
+        </p>
+
+
+
+        <!-- ================================================= -->
+        <!-- COORDINATE SEARCH -->
+        <!-- ================================================= -->
+
+        
+        <div class="map-wrapper">
+
+<div class="coordinate-search">
+            <div class="coordinate-field">
+                <label for="searchLatitude">Latitude</label>
+                <input id="searchLatitude" type="number" step="any"
+                       inputmode="decimal" placeholder="15.34829"
+                       autocomplete="off">
+            </div>
+
+            <div class="coordinate-field">
+                <label for="searchLongitude">Longitude</label>
+                <input id="searchLongitude" type="number" step="any"
+                       inputmode="decimal" placeholder="75.75293"
+                       autocomplete="off">
+            </div>
+
+            <button type="button" onclick="searchCoordinates()">
+                🔍 Find Location
+            </button>
+
+            <div id="coordinateSearchMessage"
+                 class="coordinate-search-message"></div>
+
+            <div class="map-search-help">
+                Enter decimal coordinates and press Enter or Find Location.
+            </div>
+        </div>
+
+        <div id="coordinateResultSummary"
+             class="coordinate-result-summary"
+             style="display:none;">
+            <div class="result-summary-header">
+                <span id="resultSummaryIcon">✅</span>
+                <strong id="resultSummaryTitle">Monitoring Location Found</strong>
+            </div>
+
+            <div id="resultSummaryLocation" class="result-summary-location">--</div>
+
+            <div class="result-summary-grid">
+                <div><span>Risk</span><strong id="resultSummaryRisk">--</strong></div>
+                <div><span>Latest NDVI</span><strong id="resultSummaryNdvi">--</strong></div>
+                <div><span>NDVI Change</span><strong id="resultSummaryChange">--</strong></div>
+                <div><span>Trend</span><strong id="resultSummaryTrend">--</strong></div>
+            </div>
+
+            <div class="result-summary-footer">
+                <span>Latest observation: <strong id="resultSummaryDate">--</strong></span>
+                <button type="button" onclick="openSearchResultHistory()">
+                    📊 View NDVI History
+                </button>
+            </div>
+        </div>
+
+
+
+        <div id="officerMap"></div>
+
+        <div class="change-detection-panel">
+            <strong>🛰️ Satellite Change Detection</strong>
+            <div id="changeDetectionStatus" class="change-detection-status">
+                Select an alert and press “Detect Change Area” to compare the latest two satellite observations.
+            </div>
+            <div class="change-detection-legend">
+                Red cells = candidate areas where NDVI decreased by at least 0.25 from the previous observation.
+            </div>
+        </div>
+</div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- SELECTED LOCATION DETAILS -->
+    <!-- ================================================= -->
+
+    <div class="section" id="locationDetailsSection" style="display:none;">
+
+        <h2>📍 Selected Monitoring Location</h2>
+
+        <div id="locationDetailsMeta" class="location-meta">
+            Select a map marker to view location details.
+        </div>
+
+        <div class="location-details">
+
+            <div class="detail-card">
+                <span>Risk Level</span>
+                <strong id="detailRisk">--</strong>
+            </div>
+
+            <div class="detail-card">
+                <span>Latest NDVI</span>
+                <strong id="detailNdvi">--</strong>
+            </div>
+
+            <div class="detail-card">
+                <span>NDVI Change</span>
+                <strong id="detailChange">--</strong>
+            </div>
+
+            <div class="detail-card">
+                <span>Vegetation Trend</span>
+                <strong id="detailTrend">--</strong>
+            </div>
+
+        </div>
+
+        <div class="alert-detail-box">
+
+            <strong>🚨 Alert Information</strong>
+
+            <div class="alert-detail-grid">
+
+                <div class="alert-detail-item">
+                    <span>Alert Status</span>
+                    <strong id="detailAlertStatus">--</strong>
+                </div>
+
+                <div class="alert-detail-item">
+                    <span>Alert ID</span>
+                    <strong id="detailAlertId">--</strong>
+                </div>
+
+            </div>
+
+            <div
+                id="detailAlertMessage"
+                class="alert-message-box"
+            >
+                No alert message available.
+            </div>
+
+            <button
+                id="detailAcknowledgeButton"
+                type="button"
+                class="alert-action-button"
+                style="display:none;"
+            >
+                ✅ Acknowledge Alert
+            </button>
+
+        </div>
+
+
+        <div class="location-meta">
+
+            <strong>Latest Observation:</strong>
+            <span id="detailLatestDate">--</span>
+
+            &nbsp;&nbsp; | &nbsp;&nbsp;
+
+            <strong>Data Source:</strong>
+            <span id="detailSource">--</span>
+
+        </div>
+
+        <div class="location-meta" style="margin-top:10px; font-size:12px; color:#607d8b;">
+            ℹ️ Risk stage and NDVI condition are based on stored satellite observations.
+            Searching a coordinate does not start a new satellite scan.
+        </div>
+
+        <button
+            type="button"
+            class="history-button"
+            onclick="scrollToHistory()"
+        >
+            📊 View Complete NDVI History
+        </button>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- LOCATION NDVI HISTORY -->
+    <!-- ================================================= -->
+
+    <div class="section" id="historySection" style="display:none;">
+
+        <h2>📊 Selected Location NDVI History</h2>
+
+        <div id="historyLocation" class="empty">
+            Select a marker to view its stored history.
+        </div>
+
+        <div class="chart-container" style="height:360px; margin:20px 0;">
+            <canvas id="officerNdviChart"></canvas>
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>NDVI</th>
+                        <th>Forest Cover</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+
+                <tbody id="historyTable">
+                    <tr>
+                        <td colspan="4">
+                            No history selected.
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ALERT TABLE -->
+    <!-- ================================================= -->
+
+    <div class="section">
+
+        <h2>
+            🚨 Potential Deforestation Alerts
+        </h2>
+
+        <div class="alert-filters" aria-label="Alert filters">
+            <button type="button" class="alert-filter-button active" data-alert-filter="ALL">All Alerts</button>
+            <button type="button" class="alert-filter-button" data-alert-filter="HIGH">🔴 HIGH</button>
+            <button type="button" class="alert-filter-button" data-alert-filter="MODERATE">🟠 MODERATE</button>
+            <button type="button" class="alert-filter-button" data-alert-filter="NEW">🆕 NEW</button>
+            <button type="button" class="alert-filter-button" data-alert-filter="ACKNOWLEDGED">🟢 ACKNOWLEDGED</button>
+            <span id="alertFilterCount" class="alert-filter-count">Showing all alerts</span>
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Location
+                        </th>
+
+                        <th>
+                            NDVI Change
+                        </th>
+
+                        <th>
+                            Risk
+                        </th>
+
+                        <th>
+                            Message
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Time
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="alertTable">
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            Loading alerts...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- LEAFLET -->
+<!-- ===================================================== -->
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+
+<script>
+
+
+// =========================================================
+// MAP
+// =========================================================
+
+const officerMap =
+
+    L.map(
+        "officerMap"
+    )
+
+    .setView(
+        [20, 0],
+        2
+    );
+
+
+// =========================================================
+// MAP TILES
+// =========================================================
+
+L.tileLayer(
+
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+    {
+
+        attribution:
+            "&copy; OpenStreetMap contributors",
+
+        maxZoom:
+            19
+
+    }
+
+).addTo(
+    officerMap
+);
+
+
+// =========================================================
+// MAP MARKERS
+// =========================================================
+
+let alertMarkers = [];
+
+window.officerSelectedAlert = null;
+
+
+// =========================================================
+// RISK ICON
+// =========================================================
+
+function createRiskIcon(riskLevel) {
+
+    const risk =
+        String(riskLevel || "")
+            .toUpperCase();
+
+    let className =
+        "risk-unknown";
+
+    if (risk === "HIGH") {
+
+        className =
+            "risk-high";
+
+    }
+    else if (risk === "MODERATE") {
+
+        className =
+            "risk-moderate";
+
+    }
+    else if (risk === "LOW") {
+
+        className =
+            "risk-low";
+
+    }
+
+    return L.divIcon({
+
+        className: "",
+
+        html:
+            '<div class="risk-marker ' +
+            className +
+            '"></div>',
+
+        iconSize:
+            [20, 20],
+
+        iconAnchor:
+            [10, 10],
+
+        popupAnchor:
+            [0, -10]
+
+    });
+
+}
+
+
+// =========================================================
+// MAP LEGEND
+// =========================================================
+
+const legend =
+    L.control({
+        position: "bottomright"
+    });
+
+
+legend.onAdd = function() {
+
+    const div =
+        L.DomUtil.create(
+            "div",
+            "map-legend"
+        );
+
+    div.innerHTML =
+
+        '<div class="legend-title">' +
+        'Risk Level' +
+        '</div>' +
+
+        '<div class="legend-row">' +
+        '<span class="legend-dot legend-high"></span>' +
+        'HIGH' +
+        '</div>' +
+
+        '<div class="legend-row">' +
+        '<span class="legend-dot legend-moderate"></span>' +
+        'MODERATE' +
+        '</div>' +
+
+        '<div class="legend-row">' +
+        '<span class="legend-dot legend-low"></span>' +
+        'LOW' +
+        '</div>' +
+
+        '<div class="legend-row">' +
+        '<span class="legend-dot legend-unknown"></span>' +
+        'NO RISK DATA' +
+        '</div>';
+
+    return div;
+
+};
+
+legend.addTo(officerMap);
+
+
+// =========================================================
+// SELECTED LOCATION HISTORY
+// =========================================================
+
+function escapeHistoryText(value) {
+
+    if (value === null || value === undefined) {
+        return "--";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+// =========================================================
+// LOAD ALL STORED HISTORIES
+// =========================================================
+//
+// IMPORTANT:
+// This calls only /api/location-histories.
+// It does NOT call Sentinel-2 / Copernicus.
+// =========================================================
+
+let officerLocationHistories = [];
+
+
+function loadLocationHistories() {
+
+    return fetch(
+        "/api/location-histories"
+    )
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load stored location history."
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load location history."
+            );
+
+        }
+
+        officerLocationHistories =
+            Array.isArray(data.locations)
+                ? data.locations
+                : [];
+
+        window.officerLocationHistories = officerLocationHistories;
+
+        return officerLocationHistories;
+
+    });
+
+}
+
+
+// =========================================================
+// OFFICER NDVI CHART
+// =========================================================
+
+let officerNdviChart = null;
+
+function updateOfficerNDVIChart(observations) {
+
+    const canvas =
+        document.getElementById("officerNdviChart");
+
+    if (!canvas) {
+        return;
+    }
+
+    const labels = [];
+    const values = [];
+
+    observations.forEach(observation => {
+
+        labels.push(observation.date || "--");
+
+        const value = Number(observation.ndvi);
+
+        values.push(
+            Number.isFinite(value) ? value : null
+        );
+
+    });
+
+    if (officerNdviChart !== null) {
+        officerNdviChart.destroy();
+    }
+
+    officerNdviChart = new Chart(
+        canvas,
+        {
+            type: "line",
+
+            data: {
+                labels: labels,
+
+                datasets: [
+                    {
+                        label: "NDVI",
+
+                        data: values,
+
+                        borderWidth: 3,
+
+                        pointRadius: 5,
+
+                        tension: 0.3,
+
+                        spanGaps: true
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: "index"
+                },
+
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+
+                    title: {
+                        display: true,
+                        text: "NDVI Vegetation Trend"
+                    }
+                },
+
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: "NDVI"
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Observation Date"
+                        }
+                    }
+                }
+            }
+        }
+    );
+}
+
+
+// =========================================================
+// ALERT DETAILS HELPERS
+// =========================================================
+
+function findAlertForLocation(location) {
+
+    const alerts =
+        Array.isArray(window.officerAlerts)
+            ? window.officerAlerts
+            : [];
+
+    if (!location) {
+        return null;
+    }
+
+    const lat = Number(location.latitude);
+    const lng = Number(location.longitude);
+
+    return alerts.find(alert => {
+
+        const alertLat = Number(alert.latitude);
+        const alertLng = Number(alert.longitude);
+
+        return Number.isFinite(alertLat) &&
+               Number.isFinite(alertLng) &&
+               Math.abs(alertLat - lat) < 0.00001 &&
+               Math.abs(alertLng - lng) < 0.00001;
+
+    }) || null;
+}
+
+
+function acknowledgeSelectedLocationAlert(alertId) {
+
+    if (!alertId) {
+        return;
+    }
+
+    fetch(
+        "/api/alerts/" +
+        alertId +
+        "/acknowledge",
+        {
+            method: "POST"
+        }
+    )
+    .then(response => {
+
+        if (!response.ok) {
+            throw new Error(
+                "Unable to acknowledge alert."
+            );
+        }
+
+        return response.json();
+
+    })
+    .then(data => {
+
+        if (!data.success) {
+            throw new Error(
+                data.message ||
+                "Unable to acknowledge alert."
+            );
+        }
+
+        // Refresh stored alerts. This reads PostgreSQL only.
+        return loadAlerts();
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Selected alert acknowledgement error:",
+            error
+        );
+
+        window.alert(
+            "❌ " + error.message
+        );
+
+    });
+
+}
+
+
+// =========================================================
+// SELECTED LOCATION DETAILS
+// =========================================================
+
+function setDetailClass(element, className) {
+
+    element.classList.remove(
+        "detail-high",
+        "detail-moderate",
+        "detail-low",
+        "detail-neutral"
+    );
+
+    element.classList.add(
+        className
+    );
+
+}
+
+
+function showLocationDetails(
+    alert,
+    location
+) {
+
+    // Remember the exact monitoring location so the
+    // "View Complete NDVI History" button can load its
+    // actual stored observations.
+    window.officerSelectedLocation =
+        location || null;
+
+    const section =
+        document.getElementById(
+            "locationDetailsSection"
+        );
+
+    const meta =
+        document.getElementById(
+            "locationDetailsMeta"
+        );
+
+    const riskElement =
+        document.getElementById(
+            "detailRisk"
+        );
+
+    const ndviElement =
+        document.getElementById(
+            "detailNdvi"
+        );
+
+    const changeElement =
+        document.getElementById(
+            "detailChange"
+        );
+
+    const trendElement =
+        document.getElementById(
+            "detailTrend"
+        );
+
+    const dateElement =
+        document.getElementById(
+            "detailLatestDate"
+        );
+
+    const sourceElement =
+        document.getElementById(
+            "detailSource"
+        );
+
+    const alertStatusElement =
+        document.getElementById(
+            "detailAlertStatus"
+        );
+
+    const alertIdElement =
+        document.getElementById(
+            "detailAlertId"
+        );
+
+    const alertMessageElement =
+        document.getElementById(
+            "detailAlertMessage"
+        );
+
+    const acknowledgeButton =
+        document.getElementById(
+            "detailAcknowledgeButton"
+        );
+
+
+    section.style.display = "block";
+
+
+    const latitude =
+        Number(alert.latitude);
+
+    const longitude =
+        Number(alert.longitude);
+
+
+    meta.innerHTML =
+
+        "<strong>Location #" +
+
+        escapeHistoryText(
+            alert.id
+        ) +
+
+        "</strong>" +
+
+        "<br>" +
+
+        "Latitude: " +
+
+        (
+            Number.isFinite(latitude)
+                ? latitude.toFixed(5)
+                : "--"
+        ) +
+
+        " &nbsp;&nbsp; | &nbsp;&nbsp; " +
+
+        "Longitude: " +
+
+        (
+            Number.isFinite(longitude)
+                ? longitude.toFixed(5)
+                : "--"
+        );
+
+
+    const risk =
+        String(
+            alert.risk_level || "UNKNOWN"
+        ).toUpperCase();
+
+
+    riskElement.textContent =
+        risk;
+
+
+    // Alert information comes from the stored alert record.
+    const locationAlert =
+        alert || findAlertForLocation(location);
+
+
+    if (alertStatusElement) {
+
+        const status =
+            locationAlert &&
+            locationAlert.status
+                ? String(
+                    locationAlert.status
+                ).toUpperCase()
+                : "NO ALERT";
+
+        alertStatusElement.textContent =
+            status;
+
+        alertStatusElement.classList.remove(
+            "alert-status-new",
+            "alert-status-acknowledged"
+        );
+
+        if (status === "NEW") {
+
+            alertStatusElement.classList.add(
+                "alert-status-new"
+            );
+
+        }
+        else if (
+            status === "ACKNOWLEDGED"
+        ) {
+
+            alertStatusElement.classList.add(
+                "alert-status-acknowledged"
+            );
+
+        }
+
+    }
+
+
+    if (alertIdElement) {
+
+        alertIdElement.textContent =
+            locationAlert &&
+            locationAlert.id !== undefined
+                ? locationAlert.id
+                : "--";
+
+    }
+
+
+    if (alertMessageElement) {
+
+        alertMessageElement.textContent =
+            locationAlert &&
+            locationAlert.message
+                ? locationAlert.message
+                : "No alert message available.";
+
+    }
+
+
+    if (acknowledgeButton) {
+
+        if (
+            locationAlert &&
+            String(
+                locationAlert.status || ""
+            ).toUpperCase() === "NEW"
+        ) {
+
+            acknowledgeButton.style.display =
+                "inline-block";
+
+            acknowledgeButton.onclick =
+                function() {
+
+                    acknowledgeSelectedLocationAlert(
+                        locationAlert.id
+                    );
+
+                };
+
+        }
+        else {
+
+            acknowledgeButton.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    if (risk === "HIGH") {
+
+        setDetailClass(
+            riskElement,
+            "detail-high"
+        );
+
+    }
+    else if (risk === "MODERATE") {
+
+        setDetailClass(
+            riskElement,
+            "detail-moderate"
+        );
+
+    }
+    else if (risk === "LOW") {
+
+        setDetailClass(
+            riskElement,
+            "detail-low"
+        );
+
+    }
+    else {
+
+        setDetailClass(
+            riskElement,
+            "detail-neutral"
+        );
+
+    }
+
+
+    const observations =
+        location &&
+        Array.isArray(
+            location.observations
+        )
+            ? location.observations
+            : [];
+
+
+    let latest = null;
+
+    if (observations.length > 0) {
+
+        latest =
+            observations[
+                observations.length - 1
+            ];
+
+    }
+
+
+    const latestNdvi =
+        latest
+            ? Number(latest.ndvi)
+            : NaN;
+
+
+    ndviElement.textContent =
+        Number.isFinite(latestNdvi)
+            ? latestNdvi.toFixed(4)
+            : "--";
+
+
+    const change =
+        alert.change_percentage !== null &&
+        alert.change_percentage !== undefined
+            ? Number(
+                alert.change_percentage
+            )
+            : null;
+
+
+    changeElement.textContent =
+        change !== null &&
+        Number.isFinite(change)
+            ? change.toFixed(2) + "%"
+            : "--";
+
+
+    // Determine trend from the first and latest stored NDVI.
+    let trend =
+        "NO DATA";
+
+
+    if (observations.length >= 2) {
+
+        const firstNdvi =
+            Number(
+                observations[0].ndvi
+            );
+
+        if (
+            Number.isFinite(firstNdvi) &&
+            Number.isFinite(latestNdvi)
+        ) {
+
+            const difference =
+                latestNdvi -
+                firstNdvi;
+
+
+            if (difference > 0.02) {
+
+                trend =
+                    "📈 INCREASING";
+
+                setDetailClass(
+                    trendElement,
+                    "detail-low"
+                );
+
+            }
+            else if (difference < -0.02) {
+
+                trend =
+                    "📉 DECLINING";
+
+                setDetailClass(
+                    trendElement,
+                    "detail-high"
+                );
+
+            }
+            else {
+
+                trend =
+                    "➡️ STABLE";
+
+                setDetailClass(
+                    trendElement,
+                    "detail-neutral"
+                );
+
+            }
+
+        }
+
+    }
+
+
+    if (trend === "NO DATA") {
+
+        setDetailClass(
+            trendElement,
+            "detail-neutral"
+        );
+
+    }
+
+
+    trendElement.textContent =
+        trend;
+
+
+    if (latest && latest.date) {
+
+        dateElement.textContent =
+            latest.date;
+
+    }
+    else if (alert.created_at) {
+
+        dateElement.textContent =
+            alert.created_at;
+
+    }
+    else {
+
+        dateElement.textContent =
+            "--";
+
+    }
+
+
+    sourceElement.textContent =
+
+        latest &&
+        latest.source
+
+            ? latest.source
+
+            : "Stored satellite data";
+
+
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
+
+function scrollToHistory() {
+
+    const selectedLocation =
+        window.officerSelectedLocation;
+
+    if (
+        selectedLocation &&
+        selectedLocation.id !== undefined &&
+        typeof showLocationHistory === "function"
+    ) {
+
+        // This actually loads the stored NDVI observations,
+        // updates the chart, fills the table, and scrolls
+        // to the history section.
+        showLocationHistory(
+            selectedLocation.id
+        );
+
+        return;
+    }
+
+    const historySection =
+        document.getElementById(
+            "historySection"
+        );
+
+    const historyLocation =
+        document.getElementById(
+            "historyLocation"
+        );
+
+    if (historySection) {
+        historySection.style.display =
+            "block";
+    }
+
+    if (historyLocation) {
+        historyLocation.textContent =
+            "Select a monitoring location first to view its NDVI history.";
+    }
+
+    if (historySection) {
+        historySection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+}
+
+
+
+function showAlertHistory(alertId) {
+
+    const alert =
+        Array.isArray(window.officerAlerts)
+            ? window.officerAlerts.find(
+                item =>
+                    Number(item.id) === Number(alertId)
+              )
+            : null;
+
+    if (!alert) {
+        window.alert(
+            "Stored alert could not be found."
+        );
+        return;
+    }
+
+    const location =
+        officerLocationHistories.find(item => {
+
+            const latDiff =
+                Math.abs(
+                    Number(item.latitude) -
+                    Number(alert.latitude)
+                );
+
+            const lngDiff =
+                Math.abs(
+                    Number(item.longitude) -
+                    Number(alert.longitude)
+                );
+
+            return (
+                latDiff < 0.00001 &&
+                lngDiff < 0.00001
+            );
+        });
+
+    if (!location) {
+        const section =
+            document.getElementById(
+                "historySection"
+            );
+
+        const title =
+            document.getElementById(
+                "historyLocation"
+            );
+
+        const table =
+            document.getElementById(
+                "historyTable"
+            );
+
+        if (section) {
+            section.style.display = "block";
+        }
+
+        if (title) {
+            title.textContent =
+                "No stored NDVI history is available for this alert location.";
+        }
+
+        if (table) {
+            table.innerHTML =
+                "<tr><td colspan='4'>" +
+                "No stored observations found." +
+                "</td></tr>";
+        }
+
+        return;
+    }
+
+    showLocationHistory(location.id);
+}
+
+
+// =========================================================
+// SHOW HISTORY FOR MARKER
+// =========================================================
+
+function showLocationHistory(locationId) {
+
+    const section =
+        document.getElementById(
+            "historySection"
+        );
+
+    const locationTitle =
+        document.getElementById(
+            "historyLocation"
+        );
+
+    const table =
+        document.getElementById(
+            "historyTable"
+        );
+
+    const location =
+        officerLocationHistories.find(
+            item =>
+                Number(item.id) === Number(locationId)
+        );
+
+
+    if (!location) {
+
+        section.style.display = "block";
+
+        locationTitle.textContent =
+            "Stored history is not available for this location.";
+
+        table.innerHTML =
+            "<tr>" +
+            "<td colspan='4'>" +
+            "No stored observations found." +
+            "</td>" +
+            "</tr>";
+
+        return;
+
+    }
+
+
+    section.style.display = "block";
+
+
+    locationTitle.innerHTML =
+
+        "<strong>Location #" +
+
+        escapeHistoryText(
+            location.id
+        ) +
+
+        "</strong>" +
+
+        " &nbsp; | &nbsp; " +
+
+        "Latitude: " +
+
+        Number(
+            location.latitude
+        ).toFixed(5) +
+
+        " &nbsp; | &nbsp; " +
+
+        "Longitude: " +
+
+        Number(
+            location.longitude
+        ).toFixed(5);
+
+
+    const observations =
+        Array.isArray(
+            location.observations
+        )
+            ? location.observations
+            : [];
+
+
+    // Keep the selected-location details synchronized
+    // with the same stored history.
+    const selectedAlert =
+        window.officerSelectedAlert;
+
+    if (selectedAlert) {
+
+        showLocationDetails(
+            selectedAlert,
+            location
+        );
+
+    }
+
+
+    table.innerHTML = "";
+
+
+    if (observations.length === 0) {
+
+        table.innerHTML =
+            "<tr>" +
+            "<td colspan='4'>" +
+            "No stored NDVI observations for this location." +
+            "</td>" +
+            "</tr>";
+
+        if (officerNdviChart !== null) {
+            officerNdviChart.destroy();
+            officerNdviChart = null;
+        }
+
+        return;
+
+    }
+
+
+    updateOfficerNDVIChart(observations);
+
+
+    observations.forEach(observation => {
+
+        const row =
+            document.createElement(
+                "tr"
+            );
+
+
+        const dateCell =
+            document.createElement(
+                "td"
+            );
+
+        const ndviCell =
+            document.createElement(
+                "td"
+            );
+
+        const forestCell =
+            document.createElement(
+                "td"
+            );
+
+        const sourceCell =
+            document.createElement(
+                "td"
+            );
+
+
+        dateCell.textContent =
+            observation.date || "--";
+
+
+        const ndvi =
+            Number(
+                observation.ndvi
+            );
+
+        ndviCell.textContent =
+            Number.isFinite(ndvi)
+                ? ndvi.toFixed(4)
+                : "--";
+
+
+        const forest =
+            Number(
+                observation.forest_cover
+            );
+
+        forestCell.textContent =
+            Number.isFinite(forest)
+                ? forest.toFixed(2) + "%"
+                : "--";
+
+
+        sourceCell.textContent =
+            observation.source ||
+            "Sentinel-2";
+
+
+        row.appendChild(
+            dateCell
+        );
+
+        row.appendChild(
+            ndviCell
+        );
+
+        row.appendChild(
+            forestCell
+        );
+
+        row.appendChild(
+            sourceCell
+        );
+
+
+        table.appendChild(
+            row
+        );
+
+    });
+
+
+    // Scroll to the history panel so the officer can see it.
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
+
+// =========================================================
+// LOAD STORED ALERTS / MONITORING LOCATIONS
+// =========================================================
+//
+// IMPORTANT:
+// This reads /api/alerts only.
+// It does NOT call Sentinel-2 or Copernicus.
+// =========================================================
+
+let currentAlertFilter = "ALL";
+
+function updateAlertFilterButtons() {
+    document.querySelectorAll(".alert-filter-button").forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.dataset.alertFilter === currentAlertFilter
+        );
+    });
+}
+
+function setAlertFilter(filter) {
+    currentAlertFilter = filter;
+    updateAlertFilterButtons();
+    loadAlerts();
+}
+
+document.addEventListener("click", function(event) {
+    const button = event.target.closest(".alert-filter-button");
+    if (!button) return;
+    setAlertFilter(button.dataset.alertFilter || "ALL");
+});
+
+let officerFocusMarker = null;
+let officerChangeLayer = null;
+
+
+function clearAlertChangeLayer() {
+    if (officerChangeLayer) {
+        officerMap.removeLayer(officerChangeLayer);
+        officerChangeLayer = null;
+    }
+}
+
+async function showAlertChangeMap(alertId) {
+    const alerts = Array.isArray(window.officerAlerts)
+        ? window.officerAlerts
+        : [];
+    const alertRecord = alerts.find(item =>
+        Number(item.id) === Number(alertId)
+    );
+
+    if (!alertRecord) {
+        window.alert("Alert could not be found.");
+        return;
+    }
+
+    const selectedLocation = officerLocationHistories.find(item =>
+        Math.abs(Number(item.latitude) - Number(alertRecord.latitude)) < 0.00001 &&
+        Math.abs(Number(item.longitude) - Number(alertRecord.longitude)) < 0.00001
+    );
+
+    const observations = selectedLocation && Array.isArray(selectedLocation.observations)
+        ? selectedLocation.observations
+        : [];
+
+    // The API normally exposes history through the selected location details.
+    // If it is unavailable here, fetch the location history from the existing endpoint.
+    let history = observations;
+
+    if (!history.length) {
+        try {
+            const response = await fetch("/api/location-histories");
+            const data = await response.json();
+            if (data.success && Array.isArray(data.locations)) {
+                const location = data.locations.find(item =>
+                    Math.abs(Number(item.latitude) - Number(alertRecord.latitude)) < 0.00001 &&
+                    Math.abs(Number(item.longitude) - Number(alertRecord.longitude)) < 0.00001
+                );
+                if (location && Array.isArray(location.observations)) {
+                    history = location.observations;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    if (history.length < 2) {
+        window.alert("At least two satellite observations are required to detect a change area.");
+        return;
+    }
+
+    function observationDate(item) {
+        return item && (item.date || item.observation_date || item.observationDate || item.obs_date)
+            ? String(item.date || item.observation_date || item.observationDate || item.obs_date).slice(0, 10)
+            : null;
+    }
+
+    history = [...history]
+        .map(item => ({ item, dateText: observationDate(item) }))
+        .filter(entry => entry.dateText)
+        .sort((a, b) => new Date(a.dateText) - new Date(b.dateText))
+        .map(entry => entry.item);
+
+    if (history.length < 2) {
+        window.alert("The selected alert does not have two valid satellite observation dates.");
+        return;
+    }
+
+    const before = history[history.length - 2];
+    const after = history[history.length - 1];
+    const beforeDate = observationDate(before);
+    const afterDate = observationDate(after);
+
+    clearAlertChangeLayer();
+
+    officerMap.setView(
+        [Number(alertRecord.latitude), Number(alertRecord.longitude)],
+        15,
+        { animate: true }
+    );
+
+    const statusText = document.getElementById("changeDetectionStatus");
+    if (statusText) {
+        statusText.textContent =
+            "🛰️ Comparing Sentinel-2 observations " +
+            beforeDate + " → " + afterDate + "...";
+    }
+
+    try {
+        const params = new URLSearchParams({
+            latitude: Number(alertRecord.latitude).toFixed(5),
+            longitude: Number(alertRecord.longitude).toFixed(5),
+            before: beforeDate,
+            after: afterDate
+        });
+
+        const response = await fetch("/api/alert-change-map?" + params.toString());
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Unable to generate satellite change map.");
+        }
+
+        officerChangeLayer = L.geoJSON(data.change_map, {
+            style: function() {
+                return {
+                    className: "change-cell",
+                    fillOpacity: 0.42,
+                    weight: 1
+                };
+            },
+            onEachFeature: function(feature, layer) {
+                const p = feature.properties || {};
+                layer.bindPopup(
+                    "<strong>🛰️ Possible vegetation change</strong><br><br>" +
+                    "Before NDVI: " + Number(p.before_ndvi).toFixed(3) + "<br>" +
+                    "After NDVI: " + Number(p.after_ndvi).toFixed(3) + "<br>" +
+                    "NDVI change: " + Number(p.ndvi_change).toFixed(3)
+                );
+            }
+        }).addTo(officerMap);
+
+        const count = data.change_map.metadata
+            ? data.change_map.metadata.changed_cells
+            : data.change_map.features.length;
+
+        if (statusText) {
+            statusText.innerHTML =
+                "✅ Satellite change map loaded. <strong>" +
+                count +
+                " candidate changed cells</strong> detected." +
+                "<br>Comparison: " + beforeDate + " → " + afterDate +
+                ".";
+        }
+
+        if (data.change_map.features.length) {
+            const bounds = officerChangeLayer.getBounds();
+            if (bounds.isValid()) {
+                officerMap.fitBounds(bounds.pad(0.15));
+            }
+        }
+
+    } catch (error) {
+        console.error(error);
+        if (statusText) {
+            statusText.textContent = "❌ " + error.message;
+        }
+        window.alert(error.message);
+    }
+}
+
+function focusAlertById(alertId) {
+
+    const alerts = Array.isArray(window.officerAlerts)
+        ? window.officerAlerts
+        : [];
+
+    const alertRecord = alerts.find(item =>
+        Number(item.id) === Number(alertId)
+    );
+
+    if (!alertRecord) {
+        window.alert("Alert location could not be found.");
+        return;
+    }
+
+    const latitude = Number(alertRecord.latitude);
+    const longitude = Number(alertRecord.longitude);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        window.alert("This alert does not contain valid coordinates.");
+        return;
+    }
+
+    // Zoom tightly enough for an officer to distinguish nearby alerts.
+    officerMap.setView([latitude, longitude], 16, {
+        animate: true
+    });
+
+    if (officerFocusMarker) {
+        officerMap.removeLayer(officerFocusMarker);
+    }
+
+    officerFocusMarker = L.circleMarker(
+        [latitude, longitude],
+        {
+            radius: 30,
+            weight: 3,
+            fillOpacity: 0.08
+        }
+    ).addTo(officerMap);
+
+    const marker = alertMarkers.find(item =>
+        Number(item.alertId) === Number(alertId)
+    );
+
+    if (marker) {
+        setTimeout(() => marker.openPopup(), 350);
+    }
+
+    window.officerSelectedAlert = alertRecord;
+
+    const selectedLocation =
+        officerLocationHistories.find(item =>
+            Math.abs(Number(item.latitude) - latitude) < 0.00001 &&
+            Math.abs(Number(item.longitude) - longitude) < 0.00001
+        );
+
+    window.officerSelectedLocation = selectedLocation || null;
+    showLocationDetails(alertRecord, selectedLocation);
+}
+
+function loadAlerts() {
+
+    fetch("/api/alerts")
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load stored alerts."
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        console.log(
+            "Stored alert response:",
+            data
+        );
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load alerts."
+            );
+
+        }
+
+        const alerts =
+            Array.isArray(data.alerts)
+                ? data.alerts
+                : [];
+
+        window.officerAlerts = alerts;
+
+        const filteredAlerts =
+            currentAlertFilter === "ALL"
+                ? alerts
+                : alerts.filter(alert => {
+                    const risk = String(alert.risk_level || "").toUpperCase();
+                    const status = String(alert.status || "").toUpperCase();
+                    return risk === currentAlertFilter || status === currentAlertFilter;
+                });
+
+        const filterCount = document.getElementById("alertFilterCount");
+        if (filterCount) {
+            filterCount.textContent =
+                currentAlertFilter === "ALL"
+                    ? "Showing " + alerts.length + " alerts"
+                    : "Showing " + filteredAlerts.length + " of " + alerts.length + " alerts";
+        }
+
+
+        // =================================================
+        // STATISTICS
+        // =================================================
+
+        document.getElementById(
+            "totalAlerts"
+        ).textContent =
+            alerts.length;
+
+        document.getElementById(
+            "highAlerts"
+        ).textContent =
+
+            alerts.filter(alert =>
+
+                String(
+                    alert.risk_level || ""
+                ).toUpperCase() === "HIGH"
+
+            ).length;
+
+        document.getElementById(
+            "moderateAlerts"
+        ).textContent =
+
+            alerts.filter(alert =>
+
+                String(
+                    alert.risk_level || ""
+                ).toUpperCase() === "MODERATE"
+
+            ).length;
+
+        document.getElementById(
+            "newAlerts"
+        ).textContent =
+
+            alerts.filter(alert =>
+
+                String(
+                    alert.status || ""
+                ).toUpperCase() === "NEW"
+
+            ).length;
+
+
+        // =================================================
+        // REMOVE OLD MARKERS
+        // =================================================
+
+        alertMarkers.forEach(marker => {
+
+            officerMap.removeLayer(marker);
+
+        });
+
+        alertMarkers = [];
+
+
+        // =================================================
+        // TABLE
+        // =================================================
+
+        const table =
+            document.getElementById(
+                "alertTable"
+            );
+
+        table.innerHTML = "";
+
+
+        if (filteredAlerts.length === 0) {
+
+            table.innerHTML =
+
+                "<tr>" +
+
+                "<td colspan='8' class='empty'>" +
+
+                (
+                    currentAlertFilter === "ALL"
+                        ? "No stored deforestation alerts found."
+                        : "No alerts match the selected filter."
+                )
+
+                +
+
+                "</td>" +
+
+                "</tr>";
+
+            return;
+
+        }
+
+
+        // =================================================
+        // PROCESS EACH STORED ALERT
+        // =================================================
+
+        filteredAlerts.forEach(alert => {
+
+            const latitude =
+                Number(alert.latitude);
+
+            const longitude =
+                Number(alert.longitude);
+
+            const risk =
+                String(
+                    alert.risk_level || "UNKNOWN"
+                ).toUpperCase();
+
+            const change =
+                alert.change_percentage !== null &&
+                alert.change_percentage !== undefined
+                    ? Number(
+                        alert.change_percentage
+                    )
+                    : null;
+
+
+            // =============================================
+            // MAP MARKER
+            // =============================================
+
+            if (
+                Number.isFinite(latitude) &&
+                Number.isFinite(longitude)
+            ) {
+
+                const marker =
+                    L.marker(
+                        [latitude, longitude],
+                        {
+                            icon:
+                                createRiskIcon(
+                                    risk
+                                )
+                        }
+                    ).addTo(officerMap);
+
+                marker.alertId = alert.id;
+
+
+                marker.on(
+                    "click",
+                    function() {
+
+                        window.officerSelectedAlert =
+                            alert;
+
+                        const selectedLocation =
+                            officerLocationHistories.find(
+                                item =>
+                                    Math.abs(
+                                        Number(item.latitude) -
+                                        latitude
+                                    ) < 0.00001 &&
+                                    Math.abs(
+                                        Number(item.longitude) -
+                                        longitude
+                                    ) < 0.00001
+                            );
+
+                        window.officerSelectedLocation =
+                            selectedLocation;
+
+                        showLocationDetails(
+                            alert,
+                            selectedLocation
+                        );
+
+                    }
+                );
+
+
+                marker.bindPopup(
+
+                    "<strong>" +
+
+                    "📍 Monitoring Location #" +
+
+                    alert.id +
+
+                    "</strong>" +
+
+                    "<br><br>" +
+
+                    "<strong>Latitude:</strong> " +
+
+                    latitude.toFixed(5) +
+
+                    "<br>" +
+
+                    "<strong>Longitude:</strong> " +
+
+                    longitude.toFixed(5) +
+
+                    "<br>" +
+
+                    "<strong>Risk:</strong> " +
+
+                    risk +
+
+                    "<br>" +
+
+                    "<strong>NDVI Change:</strong> " +
+
+                    (
+                        change !== null &&
+                        Number.isFinite(change)
+                            ? change.toFixed(2) + "%"
+                            : "--"
+                    ) +
+
+                    "<br>" +
+
+                    "<strong>Status:</strong> " +
+
+                    (
+                        alert.status ||
+                        "UNKNOWN"
+                    ) +
+
+                    "<br><br>" +
+
+                    (
+                        alert.message ||
+                        "No additional information."
+                    ) +
+
+                    "<br><br>" +
+
+                    "<button " +
+
+                    "type='button' " +
+
+                    "onclick='showLocationHistory(" +
+
+                    alert.id +
+
+                    ")'>" +
+
+                    "📊 View NDVI History" +
+
+                    "</button>" +
+
+                    "<br><br>" +
+
+                    "<button type='button' onclick='showAlertChangeMap(" +
+                    alert.id +
+                    ")'>" +
+                    "🛰️ Detect Change Area" +
+                    "</button>"
+
+                );
+
+
+                alertMarkers.push(
+                    marker
+                );
+
+            }
+
+
+            // =============================================
+            // TABLE ROW
+            // =============================================
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            // ID
+
+            const idCell =
+                document.createElement(
+                    "td"
+                );
+
+            const locateButton =
+                document.createElement("button");
+
+            locateButton.type = "button";
+            locateButton.className = "alert-id-button";
+            locateButton.textContent = "📍 " + alert.id;
+            locateButton.title = "Show this alert exactly on the map";
+            locateButton.onclick = function() {
+                focusAlertById(alert.id);
+            };
+
+            idCell.appendChild(locateButton);
+
+            row.appendChild(
+                idCell
+            );
+
+
+            // LOCATION
+
+            const locationCell =
+                document.createElement(
+                    "td"
+                );
+
+            if (
+                Number.isFinite(latitude) &&
+                Number.isFinite(longitude)
+            ) {
+
+                locationCell.innerHTML =
+
+                    latitude.toFixed(5) +
+
+                    "<br>" +
+
+                    longitude.toFixed(5);
+
+            }
+            else {
+
+                locationCell.textContent =
+                    "--";
+
+            }
+
+            row.appendChild(
+                locationCell
+            );
+
+
+            // NDVI CHANGE
+
+            const changeCell =
+                document.createElement(
+                    "td"
+                );
+
+            if (
+                change !== null &&
+                Number.isFinite(change)
+            ) {
+
+                changeCell.textContent =
+                    change.toFixed(2) + "%";
+
+            }
+            else {
+
+                changeCell.textContent =
+                    "--";
+
+            }
+
+            row.appendChild(
+                changeCell
+            );
+
+
+            // RISK
+
+            const riskCell =
+                document.createElement(
+                    "td"
+                );
+
+            riskCell.textContent =
+                risk;
+
+
+            if (risk === "HIGH") {
+
+                riskCell.className =
+                    "high";
+
+            }
+            else if (risk === "MODERATE") {
+
+                riskCell.className =
+                    "moderate";
+
+            }
+            else if (risk === "LOW") {
+
+                riskCell.className =
+                    "low";
+
+            }
+
+
+            row.appendChild(
+                riskCell
+            );
+
+
+            // MESSAGE
+
+            const messageCell =
+                document.createElement(
+                    "td"
+                );
+
+            messageCell.textContent =
+
+                alert.message ||
+                "--";
+
+            row.appendChild(
+                messageCell
+            );
+
+
+            // STATUS
+
+            const statusCell =
+                document.createElement(
+                    "td"
+                );
+
+            const status =
+                String(
+                    alert.status || "UNKNOWN"
+                ).toUpperCase();
+
+            statusCell.textContent =
+                status;
+
+
+            if (status === "NEW") {
+
+                statusCell.className =
+                    "new";
+
+            }
+            else {
+
+                statusCell.className =
+                    "acknowledged";
+
+            }
+
+            row.appendChild(
+                statusCell
+            );
+
+
+            // TIME
+
+            const timeCell =
+                document.createElement(
+                    "td"
+                );
+
+            if (alert.created_at) {
+
+                const date =
+                    new Date(
+                        alert.created_at
+                    );
+
+                timeCell.textContent =
+                    Number.isNaN(
+                        date.getTime()
+                    )
+                        ? alert.created_at
+                        : date.toLocaleString();
+
+            }
+            else {
+
+                timeCell.textContent =
+                    "--";
+
+            }
+
+            row.appendChild(
+                timeCell
+            );
+
+
+            // ACTION
+
+            const actionCell =
+                document.createElement(
+                    "td"
+                );
+
+            const locateActionButton =
+                document.createElement("button");
+
+            locateActionButton.type = "button";
+            locateActionButton.className = "locate-alert-button";
+            locateActionButton.textContent = "📍 Locate";
+            locateActionButton.title = "Zoom to the exact alert coordinates";
+            locateActionButton.onclick = function() {
+                focusAlertById(alert.id);
+            };
+            actionCell.appendChild(locateActionButton);
+
+            const changeActionButton = document.createElement("button");
+            changeActionButton.type = "button";
+            changeActionButton.style.marginLeft = "6px";
+            changeActionButton.textContent = "🛰️ Detect Change";
+            changeActionButton.title = "Compare the latest two Sentinel-2 observations";
+            changeActionButton.onclick = function() {
+                showAlertChangeMap(alert.id);
+            };
+            actionCell.appendChild(changeActionButton);
+
+
+            if (status === "NEW") {
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+                button.textContent =
+                    "Acknowledge";
+
+                button.onclick =
+                    function() {
+
+                        acknowledgeAlert(
+                            alert.id
+                        );
+
+                    };
+
+                actionCell.appendChild(
+                    button
+                );
+
+            }
+            else {
+
+                const done =
+                    document.createElement(
+                        "span"
+                    );
+
+                done.className =
+                    "done";
+
+                done.textContent =
+                    "✅ Done";
+
+                actionCell.appendChild(
+                    done
+                );
+
+            }
+
+
+            row.appendChild(
+                actionCell
+            );
+
+
+            table.appendChild(
+                row
+            );
+
+        });
+
+
+        // =================================================
+        // FIT MAP TO STORED ALERT LOCATIONS
+        // =================================================
+
+        if (alertMarkers.length > 0) {
+
+            const group =
+                L.featureGroup(
+                    alertMarkers
+                );
+
+            officerMap.fitBounds(
+                group.getBounds(),
+                {
+                    padding:
+                        [30, 30],
+
+                    maxZoom:
+                        13
+                }
+            );
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error(
+            "Alert loading error:",
+            error
+        );
+
+        document.getElementById(
+            "alertTable"
+        ).innerHTML =
+
+            "<tr>" +
+
+            "<td colspan='8'>" +
+
+            "<div class='error-message'>" +
+
+            "❌ Unable to load stored alerts: " +
+
+            error.message +
+
+            "</div>" +
+
+            "</td>" +
+
+            "</tr>";
+
+    });
+
+}
+
+
+// =========================================================
+// ACKNOWLEDGE ALERT
+// =========================================================
+
+function acknowledgeAlert(
+    alertId
+) {
+
+
+    fetch(
+
+        "/api/alerts/" +
+
+        alertId +
+
+        "/acknowledge",
+
+        {
+
+            method:
+                "POST"
+
+        }
+
+    )
+
+
+    .then(
+
+        response => {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to acknowledge alert."
+                );
+
+            }
+
+            return response.json();
+
+        }
+
+    )
+
+
+    .then(
+
+        data => {
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.message
+                );
+
+            }
+
+
+            loadAlerts();
+
+        }
+
+    )
+
+
+    .catch(
+
+        error => {
+
+            alert(
+                "❌ " +
+                error.message
+            );
+
+        }
+
+    );
+
+}
+
+
+// =========================================================
+// VISUAL 30-MINUTE MONITORING INDICATOR
+// =========================================================
+//
+// IMPORTANT:
+//
+// This is ONLY a visual simulation.
+//
+// It does NOT:
+// - call Copernicus
+// - call Flask
+// - access PostgreSQL
+// - request satellite data
+//
+// =========================================================
+
+const OFFICER_MONITORING_INTERVAL =
+    30 * 60;
+
+
+let officerRemainingSeconds =
+    OFFICER_MONITORING_INTERVAL;
+
+
+// =========================================================
+// FORMAT TIME
+// =========================================================
+
+function officerFormatTime(
+    date
+) {
+
+    return date.toLocaleTimeString(
+
+        [],
+
+        {
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit",
+
+            second:
+                "2-digit"
+
+        }
+
+    );
+
+}
+
+
+// =========================================================
+// INITIAL TIME
+// =========================================================
+
+const officerMonitoringNow =
+    new Date();
+
+
+const officerMonitoringNext =
+
+    new Date(
+
+        officerMonitoringNow.getTime()
+
+        +
+
+        OFFICER_MONITORING_INTERVAL
+        * 1000
+
+    );
+
+
+document.getElementById(
+    "officerLastScan"
+).textContent =
+
+    officerFormatTime(
+        officerMonitoringNow
+    );
+
+
+document.getElementById(
+    "officerNextScan"
+).textContent =
+
+    officerFormatTime(
+        officerMonitoringNext
+    );
+
+
+// =========================================================
+// VISUAL TIMER
+// =========================================================
+
+setInterval(
+
+    function() {
+
+
+        officerRemainingSeconds--;
+
+
+        if (
+            officerRemainingSeconds <= 0
+        ) {
+
+
+            // ---------------------------------------------
+            // VISUAL UPDATE ONLY
+            // ---------------------------------------------
+
+            const simulatedTime =
+                new Date();
+
+
+            const simulatedNext =
+
+                new Date(
+
+                    simulatedTime.getTime()
+
+                    +
+
+                    OFFICER_MONITORING_INTERVAL
+                    * 1000
+
+                );
+
+
+            document.getElementById(
+                "officerLastScan"
+            ).textContent =
+
+                officerFormatTime(
+                    simulatedTime
+                );
+
+
+            document.getElementById(
+                "officerNextScan"
+            ).textContent =
+
+                officerFormatTime(
+                    simulatedNext
+                );
+
+
+            officerRemainingSeconds =
+
+                OFFICER_MONITORING_INTERVAL;
+
+
+            document.getElementById(
+                "officerMonitoringMessage"
+            ).textContent =
+
+                "System monitoring continues";
+
+        }
+
+    },
+
+    1000
+
+);
+
+
+updateAlertFilterButtons();
+
+// =========================================================
+// INITIAL STORED DATA LOAD
+// =========================================================
+//
+// Both requests below read stored PostgreSQL-backed data.
+// Neither request calls Sentinel-2.
+// =========================================================
+
+loadLocationHistories()
+
+    .then(() => {
+
+        return loadAlerts();
+
+    })
+
+    .catch(error => {
+
+        console.error(
+            "Initial history load error:",
+            error
+        );
+
+        // Alerts can still load even if history endpoint
+        // is temporarily unavailable.
+        loadAlerts();
+
+    });
+
+
+// =========================================================
+// REFRESH ALERT LIST
+// =========================================================
+//
+// IMPORTANT:
+// This only requests /api/alerts.
+//
+// It does NOT request satellite data.
+//
+// =========================================================
+
+setInterval(
+
+    loadAlerts,
+
+    30000
+
+);
+
+
+// =========================================================
+// COORDINATE SEARCH RESULT SUMMARY
+// =========================================================
+
+let searchedLocationHistoryId = null;
+
+function summaryClass(element, className) {
+    element.classList.remove(
+        "summary-high",
+        "summary-moderate",
+        "summary-low",
+        "summary-neutral"
+    );
+    element.classList.add(className);
+}
+
+function updateCoordinateResultSummary(alert, location) {
+
+    const panel = document.getElementById("coordinateResultSummary");
+    if (!panel || !location) return;
+
+    panel.style.display = "block";
+    searchedLocationHistoryId = location.id;
+
+    const riskElement = document.getElementById("resultSummaryRisk");
+    const ndviElement = document.getElementById("resultSummaryNdvi");
+    const changeElement = document.getElementById("resultSummaryChange");
+    const trendElement = document.getElementById("resultSummaryTrend");
+    const dateElement = document.getElementById("resultSummaryDate");
+
+    document.getElementById("resultSummaryLocation").textContent =
+        "📍 Location #" + location.id + " • " +
+        Number(location.latitude).toFixed(5) + ", " +
+        Number(location.longitude).toFixed(5);
+
+    const risk = alert && alert.risk_level
+        ? String(alert.risk_level).toUpperCase()
+        : "NO RISK DATA";
+
+    riskElement.textContent = risk;
+    summaryClass(
+        riskElement,
+        risk === "HIGH" ? "summary-high" :
+        risk === "MODERATE" ? "summary-moderate" :
+        risk === "LOW" ? "summary-low" :
+        "summary-neutral"
+    );
+
+    const observations = Array.isArray(location.observations)
+        ? location.observations
+        : [];
+
+    const latest = observations.length
+        ? observations[observations.length - 1]
+        : null;
+
+    const latestNdvi = latest ? Number(latest.ndvi) : NaN;
+
+    ndviElement.textContent =
+        Number.isFinite(latestNdvi) ? latestNdvi.toFixed(4) : "--";
+
+    const change = alert &&
+        alert.change_percentage !== null &&
+        alert.change_percentage !== undefined
+        ? Number(alert.change_percentage)
+        : NaN;
+
+    changeElement.textContent =
+        Number.isFinite(change) ? change.toFixed(2) + "%" : "--";
+
+    let trend = "NO DATA";
+
+    if (observations.length >= 2) {
+        const firstNdvi = Number(observations[0].ndvi);
+
+        if (Number.isFinite(firstNdvi) && Number.isFinite(latestNdvi)) {
+            const difference = latestNdvi - firstNdvi;
+
+            if (difference < -0.02) {
+                trend = "📉 DECLINING";
+                summaryClass(trendElement, "summary-high");
+            } else if (difference > 0.02) {
+                trend = "📈 IMPROVING";
+                summaryClass(trendElement, "summary-low");
+            } else {
+                trend = "➡️ STABLE";
+                summaryClass(trendElement, "summary-neutral");
+            }
+        }
+    }
+
+    if (trend === "NO DATA") {
+        summaryClass(trendElement, "summary-neutral");
+    }
+
+    trendElement.textContent = trend;
+    dateElement.textContent = latest && latest.date ? latest.date : "--";
+}
+
+function hideCoordinateResultSummary() {
+    const panel = document.getElementById("coordinateResultSummary");
+    if (panel) panel.style.display = "none";
+    searchedLocationHistoryId = null;
+}
+
+function openSearchResultHistory() {
+    if (
+        searchedLocationHistoryId !== null &&
+        typeof showLocationHistory === "function"
+    ) {
+        showLocationHistory(searchedLocationHistoryId);
+    }
+}
+
+// =========================================================
+// COORDINATE SEARCH
+// =========================================================
+
+let coordinateSearchMarker = null;
+
+function setCoordinateSearchMessage(message, className) {
+    const element = document.getElementById(
+        "coordinateSearchMessage"
+    );
+
+    if (!element) return;
+
+    element.textContent = message;
+    element.className =
+        "coordinate-search-message " +
+        (className || "");
+}
+
+
+function findClosestStoredLocation(latitude, longitude) {
+
+    let closest = null;
+    let closestDistance = Infinity;
+
+    (window.officerLocationHistories || []).forEach(location => {
+
+        const lat = Number(location.latitude);
+        const lng = Number(location.longitude);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            return;
+        }
+
+        const distance = Math.sqrt(
+            Math.pow(latitude - lat, 2) +
+            Math.pow(longitude - lng, 2)
+        );
+
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closest = {
+                location: location,
+                distance: distance
+            };
+        }
+
+    });
+
+    return closest;
+}
+
+
+function searchCoordinates() {
+
+    const latitude = Number(
+        document.getElementById("searchLatitude").value
+    );
+
+    const longitude = Number(
+        document.getElementById("searchLongitude").value
+    );
+
+    if (!Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)) {
+
+        setCoordinateSearchMessage(
+            "❌ Please enter valid latitude and longitude.",
+            "search-error"
+        );
+
+        return;
+    }
+
+    if (latitude < -90 || latitude > 90) {
+
+        setCoordinateSearchMessage(
+            "❌ Latitude must be between -90 and 90.",
+            "search-error"
+        );
+
+        return;
+    }
+
+    if (longitude < -180 || longitude > 180) {
+
+        setCoordinateSearchMessage(
+            "❌ Longitude must be between -180 and 180.",
+            "search-error"
+        );
+
+        return;
+    }
+
+    officerMap.setView(
+        [latitude, longitude],
+        15,
+        { animate: true }
+    );
+
+    if (coordinateSearchMarker !== null) {
+        officerMap.removeLayer(
+            coordinateSearchMarker
+        );
+    }
+
+    coordinateSearchMarker =
+        L.marker(
+            [latitude, longitude]
+        ).addTo(officerMap);
+
+    const closest =
+        findClosestStoredLocation(
+            latitude,
+            longitude
+        );
+
+    // About 100 metres. This is only for matching the
+    // search to an existing stored monitoring location.
+    const threshold = 0.0005;
+
+    if (closest && closest.distance <= threshold) {
+
+        const location = closest.location;
+
+        const alerts =
+            Array.isArray(window.officerAlerts)
+                ? window.officerAlerts
+                : [];
+
+        const alert =
+            alerts.find(item => {
+
+                const alertLat =
+                    Number(item.latitude);
+
+                const alertLng =
+                    Number(item.longitude);
+
+                return Number.isFinite(alertLat) &&
+                       Number.isFinite(alertLng) &&
+                       Math.abs(
+                           alertLat -
+                           Number(location.latitude)
+                       ) < 0.00001 &&
+                       Math.abs(
+                           alertLng -
+                           Number(location.longitude)
+                       ) < 0.00001;
+
+            }) || null;
+
+        // Show the stored monitoring point.
+        coordinateSearchMarker.bindPopup(
+            "<strong>📍 Stored Monitoring Location #" +
+            location.id +
+            "</strong><br><br>" +
+            "<strong>Latitude:</strong> " +
+            Number(location.latitude).toFixed(5) +
+            "<br>" +
+            "<strong>Longitude:</strong> " +
+            Number(location.longitude).toFixed(5) +
+            "<br><br>" +
+            "<strong>Risk:</strong> " +
+            (
+                alert && alert.risk_level
+                    ? String(alert.risk_level).toUpperCase()
+                    : "NO RISK DATA"
+            ) +
+            "<br><br>" +
+            "<button type='button' onclick='showLocationHistory(" +
+            location.id +
+            ")'>" +
+            "📊 View NDVI History" +
+            "</button>"
+        ).openPopup();
+
+        // IMPORTANT: reuse the exact same details/history data used
+        // by normal marker clicks. No new satellite request.
+        updateCoordinateResultSummary(
+            alert,
+            location
+        );
+
+        if (alert && typeof showLocationDetails === "function") {
+
+            window.officerSelectedAlert = alert;
+
+            showLocationDetails(
+                alert,
+                location
+            );
+
+        } else if (
+            typeof showLocationHistory === "function"
+        ) {
+
+            showLocationHistory(
+                location.id
+            );
+
+        }
+
+        setCoordinateSearchMessage(
+            "✅ Stored monitoring location found. Risk and NDVI history loaded.",
+            "search-success"
+        );
+
+    } else {
+
+        hideCoordinateResultSummary();
+
+        coordinateSearchMarker.bindPopup(
+            "<strong>📍 Searched Location</strong>" +
+            "<br><br>" +
+            "<strong>Latitude:</strong> " +
+            latitude.toFixed(5) +
+            "<br>" +
+            "<strong>Longitude:</strong> " +
+            longitude.toFixed(5) +
+            "<br><br>" +
+            "No stored monitoring location was found nearby, so no stored risk/NDVI condition is available."
+        ).openPopup();
+
+        setCoordinateSearchMessage(
+            "ℹ️ Location found on the map, but no stored monitoring record is nearby.",
+            "search-warning"
+        );
+    }
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        [
+            "searchLatitude",
+            "searchLongitude"
+        ].forEach(id => {
+
+            const input =
+                document.getElementById(id);
+
+            if (!input) return;
+
+            input.addEventListener(
+                "keydown",
+                function(event) {
+
+                    if (event.key === "Enter") {
+                        searchCoordinates();
+                    }
+
+                }
+            );
+
+        });
+
+    }
+);
+
+
+// =========================================================
+// MOBILE NOTIFICATION SETUP — STEP 3
+// =========================================================
+
+async function enableMobileNotifications() {
+
+    const button = document.getElementById("enableNotificationsButton");
+    const status = document.getElementById("notificationStatus");
+
+    if (!button || !status) {
+        return;
+    }
+
+    if (!("Notification" in window)) {
+        status.className = "notification-status notification-error";
+        status.textContent =
+            "❌ This browser does not support web notifications.";
+        return;
+    }
+
+    if (!window.isSecureContext) {
+        status.className = "notification-status notification-warning";
+        status.textContent =
+            "⚠️ Notifications require HTTPS when deployed. Local development can continue for now.";
+        return;
+    }
+
+    button.disabled = true;
+    status.className = "notification-status";
+    status.textContent = "⏳ Connecting this device to push notifications...";
+
+    try {
+
+        const permission = await Notification.requestPermission();
+
+        if (permission !== "granted") {
+            status.className =
+                "notification-status notification-warning";
+
+            status.textContent =
+                permission === "denied"
+                    ? "⚠️ Notifications are blocked. Allow them in the browser settings."
+                    : "ℹ️ Notification permission was not granted.";
+
+            button.disabled = false;
+            return;
+        }
+
+        if (!("serviceWorker" in navigator)) {
+            throw new Error(
+                "This browser does not support service workers."
+            );
+        }
+
+        const registration =
+            await navigator.serviceWorker.register(
+                "/service-worker.js"
+            );
+
+        await navigator.serviceWorker.ready;
+
+        window.officerPushServiceWorker = registration;
+
+        if (!("PushManager" in window)) {
+            throw new Error(
+                "This browser does not support push notifications."
+            );
+        }
+
+        const existingSubscription =
+            await registration.pushManager.getSubscription();
+
+        let subscription = existingSubscription;
+
+        if (!subscription) {
+
+            subscription =
+                await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey:
+                        urlBase64ToUint8Array(
+                            "BBQcAFR8FA9NcEARYLdP34AfWcC5runMCpNmy1hhsHbPanpfjxa82mhqsQkktjQlDog-Rf2qwQ45liHaEZDkWH0"
+                        )
+                });
+
+        }
+
+        const response = await fetch(
+            "/api/push/subscribe",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(subscription.toJSON())
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message ||
+                "The server could not save this device subscription."
+            );
+        }
+
+        status.className =
+            "notification-status notification-ready";
+
+        status.textContent =
+            "✅ This device is registered for push notifications.";
+
+        button.textContent =
+            "✅ Device Registered";
+
+    } catch (error) {
+
+        console.error(
+            "Mobile push subscription error:",
+            error
+        );
+
+        status.className =
+            "notification-status notification-error";
+
+        status.textContent =
+            "❌ Unable to register this device: " +
+            error.message;
+
+        button.disabled = false;
+    }
+}
+
+
+function urlBase64ToUint8Array(base64String) {
+
+    const padding =
+        "=".repeat(
+            (4 - base64String.length % 4) % 4
+        );
+
+    const base64 =
+        (base64String + padding)
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+
+    const rawData =
+        window.atob(base64);
+
+    return Uint8Array.from(
+        [...rawData].map(
+            char => char.charCodeAt(0)
+        )
+    );
+}
+
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        const button =
+            document.getElementById(
+                "enableNotificationsButton"
+            );
+
+        if (button) {
+
+            button.addEventListener(
+                "click",
+                enableMobileNotifications
+            );
+
+        }
+
+        const status =
+            document.getElementById(
+                "notificationStatus"
+            );
+
+        if ("Notification" in window && status) {
+
+            if (Notification.permission === "granted") {
+
+                status.className =
+                    "notification-status notification-ready";
+
+                status.textContent =
+                    "✅ This browser has already granted notification permission.";
+
+            }
+            else if (
+                Notification.permission === "denied"
+            ) {
+
+                status.className =
+                    "notification-status notification-warning";
+
+                status.textContent =
+                    "⚠️ Notifications are currently blocked in this browser.";
+
+            }
+
+        }
+
+    }
+);
+
+
+
+
+const testNotificationButton =
+    document.getElementById("testNotificationButton");
+
+if (testNotificationButton) {
+    testNotificationButton.addEventListener("click", async function() {
+        const status = document.getElementById("notificationStatus");
+
+        try {
+            testNotificationButton.disabled = true;
+            testNotificationButton.textContent = "⏳ Sending...";
+
+            const response = await fetch("/api/push/test", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.message || "Push test failed.");
+            }
+
+            if (status) {
+                status.textContent =
+                    "✅ Test notification requested. Check this device.";
+            }
+        } catch (error) {
+            if (status) {
+                status.textContent =
+                    "❌ Test notification failed: " + error.message;
+            }
+        } finally {
+            testNotificationButton.disabled = false;
+            testNotificationButton.textContent = "🧪 Send Test Notification";
+        }
+    });
+
+}
+
+const testEmailButton =
+    document.getElementById("testEmailButton");
+
+if (testEmailButton) {
+    testEmailButton.addEventListener("click", async function() {
+        const status = document.getElementById("notificationStatus");
+
+        try {
+            testEmailButton.disabled = true;
+            testEmailButton.textContent = "⏳ Sending Email...";
+
+            const response = await fetch("/api/email/test", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(
+                    data.message || "Email test failed."
+                );
+            }
+
+            if (status) {
+                status.textContent =
+                    "✅ Test email sent. Check the configured officer email inbox.";
+            }
+
+        } catch (error) {
+
+            if (status) {
+                status.textContent =
+                    "❌ Test email failed: " +
+                    error.message;
+            }
+
+        } finally {
+
+            testEmailButton.disabled = false;
+            testEmailButton.textContent = "📧 Send Test Email";
+
+        }
+    });
+}
+</script>
+
+
+</body>
+
+</html> 

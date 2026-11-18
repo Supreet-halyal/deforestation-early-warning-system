@@ -1,0 +1,7 @@
+.env
+venv/
+__pycache__/
+*.py[cod]
+private_key.pem
+debug_ndvi.tif
+push_subscriptions.json

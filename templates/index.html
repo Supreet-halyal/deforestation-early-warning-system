@@ -1,0 +1,4587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Deforestation Early Warning System</title>
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <!-- Leaflet Draw -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f4f7f4;
+
+            color: #222;
+
+        }
+
+
+        /* =================================================
+           HEADER
+        ================================================= */
+
+        header {
+
+            background: #1b5e20;
+
+            color: white;
+
+            padding: 22px;
+
+            text-align: center;
+
+        }
+
+        header h1 {
+
+            margin: 0;
+
+            font-size: 30px;
+
+        }
+
+        header p {
+
+            margin: 8px 0 0;
+
+            font-size: 16px;
+
+        }
+
+
+        /* =================================================
+           CONTAINER
+        ================================================= */
+
+        .container {
+
+            max-width: 1400px;
+
+            margin: auto;
+
+            padding: 20px;
+
+        }
+
+
+        /* =================================================
+           SECTION
+        ================================================= */
+
+        .section {
+
+            background: white;
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 2px 10px
+                rgba(0, 0, 0, 0.08);
+
+        }
+
+        .section h2 {
+
+            margin-top: 0;
+
+            color: #1b5e20;
+
+        }
+
+
+        /* =================================================
+           MAP
+        ================================================= */
+
+        #map {
+
+            height: 600px;
+
+            width: 100%;
+
+            border-radius: 10px;
+
+            border: 2px solid #ddd;
+
+        }
+
+
+        /* =================================================
+           MONITORING
+        ================================================= */
+
+        .monitoring-section {
+
+            border-left: 5px solid #1565c0;
+
+        }
+
+        .monitoring-panel {
+
+            background: #f5f9ff;
+
+            border-radius: 10px;
+
+            padding: 20px;
+
+            border: 1px solid #d6e6f7;
+
+        }
+
+        .monitoring-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font-size: 20px;
+
+            color: #1b5e20;
+
+            margin-bottom: 20px;
+
+        }
+
+        .status-dot {
+
+            width: 14px;
+
+            height: 14px;
+
+            background: #2e7d32;
+
+            border-radius: 50%;
+
+            display: inline-block;
+
+            animation:
+                monitoringPulse 2s infinite;
+
+        }
+
+        @keyframes monitoringPulse {
+
+            0% {
+
+                opacity: 1;
+
+                transform: scale(1);
+
+            }
+
+            50% {
+
+                opacity: 0.4;
+
+                transform: scale(1.25);
+
+            }
+
+            100% {
+
+                opacity: 1;
+
+                transform: scale(1);
+
+            }
+
+        }
+
+        .monitoring-info {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 15px;
+
+        }
+
+        .monitoring-info div {
+
+            background: white;
+
+            padding: 15px;
+
+            border-radius: 8px;
+
+        }
+
+        .monitoring-info span {
+
+            display: block;
+
+            font-size: 13px;
+
+            color: #666;
+
+            margin-bottom: 6px;
+
+        }
+
+        .monitoring-info strong {
+
+            font-size: 17px;
+
+        }
+
+        .monitoring-message {
+
+            margin-top: 15px;
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            background: #e3f2fd;
+
+            color: #1565c0;
+
+        }
+
+        .monitoring-panel small {
+
+            display: block;
+
+            margin-top: 15px;
+
+            color: #666;
+
+        }
+
+
+        /* =================================================
+           GRID
+        ================================================= */
+
+        .grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 15px;
+
+        }
+
+
+        /* =================================================
+           CARDS
+        ================================================= */
+
+        .card {
+
+            background: #f5f8f5;
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            border-left:
+                5px solid #1b5e20;
+
+        }
+
+        .card h3 {
+
+            margin-top: 0;
+
+            margin-bottom: 10px;
+
+            color: #333;
+
+        }
+
+        .value {
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+            margin: 0;
+
+        }
+
+
+        /* =================================================
+           RISK
+        ================================================= */
+
+        .risk {
+
+            font-size: 26px;
+
+            font-weight: bold;
+
+            margin: 0;
+
+        }
+
+
+        /* =================================================
+           STATUS
+        ================================================= */
+
+        .status {
+
+            margin-top: 20px;
+
+            padding: 18px;
+
+            border-radius: 10px;
+
+            background: #e8f5e9;
+
+            border-left:
+                5px solid #2e7d32;
+
+        }
+
+        .status p {
+
+            margin: 7px 0;
+
+        }
+
+
+        /* =================================================
+           DATA BADGES
+        ================================================= */
+
+        .badge {
+
+            display: inline-block;
+
+            padding:
+                6px 12px;
+
+            border-radius:
+                20px;
+
+            font-size:
+                14px;
+
+            font-weight:
+                bold;
+
+        }
+
+        .live {
+
+            background:
+                #c8e6c9;
+
+            color:
+                #1b5e20;
+
+        }
+
+        .cached {
+
+            background:
+                #e3f2fd;
+
+            color:
+                #1565c0;
+
+        }
+
+
+        /* =================================================
+           LOADING
+        ================================================= */
+
+        .loading {
+
+            display:
+                none;
+
+            margin-top:
+                15px;
+
+            padding:
+                15px;
+
+            border-radius:
+                8px;
+
+            background:
+                #fff8e1;
+
+            border-left:
+                5px solid #ffb300;
+
+        }
+
+        .loading.active {
+
+            display:
+                block;
+
+        }
+
+
+        /* =================================================
+           ERROR
+        ================================================= */
+
+        .error {
+
+            display:
+                none;
+
+            margin-top:
+                15px;
+
+            padding:
+                15px;
+
+            border-radius:
+                8px;
+
+            background:
+                #ffebee;
+
+            border-left:
+                5px solid #c62828;
+
+            color:
+                #b71c1c;
+
+        }
+
+        .error.active {
+
+            display:
+                block;
+
+        }
+
+
+        /* =================================================
+           ALERT
+        ================================================= */
+
+        #alertSection {
+
+            display:
+                none;
+
+        }
+
+        .alert-box {
+
+            padding:
+                20px;
+
+            border-radius:
+                10px;
+
+            background:
+                #ffebee;
+
+            border-left:
+                7px solid #c62828;
+
+        }
+
+        .alert-box h3 {
+
+            margin-top:
+                0;
+
+            color:
+                #b71c1c;
+
+            font-size:
+                24px;
+
+        }
+
+        .alert-box p {
+
+            margin:
+                10px 0;
+
+        }
+
+        .alert-high {
+
+            background:
+                #ffebee;
+
+            border-left-color:
+                #c62828;
+
+        }
+
+        .alert-moderate {
+
+            background:
+                #fff8e1;
+
+            border-left-color:
+                #ff9800;
+
+        }
+
+
+        /* =================================================
+           CHART
+        ================================================= */
+
+        .chart-container {
+
+            width:
+                100%;
+
+            height:
+                400px;
+
+            position:
+                relative;
+
+        }
+
+
+        /* =================================================
+           HISTORY
+        ================================================= */
+
+        .history {
+
+            margin-top:
+                20px;
+
+            overflow-x:
+                auto;
+
+        }
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+        }
+
+        th,
+        td {
+
+            padding:
+                12px;
+
+            border:
+                1px solid #ddd;
+
+            text-align:
+                center;
+
+        }
+
+        th {
+
+            background:
+                #1b5e20;
+
+            color:
+                white;
+
+        }
+
+        tr:nth-child(even) {
+
+            background:
+                #f5f5f5;
+
+        }
+
+
+        /* =================================================
+           FOOTER
+        ================================================= */
+
+        footer {
+
+            text-align:
+                center;
+
+            padding:
+                20px;
+
+            color:
+                #666;
+
+            font-size:
+                14px;
+
+        }
+
+
+        /* =================================================
+           MOBILE
+        ================================================= */
+
+        @media (max-width: 700px) {
+
+            .grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            .monitoring-info {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            #map {
+
+                height:
+                    450px;
+
+            }
+
+            header h1 {
+
+                font-size:
+                    23px;
+
+            }
+
+        }
+
+        /* =================================================
+   COORDINATE SEARCH
+================================================= */
+
+.coordinate-search {
+
+    margin-top: 20px;
+
+    padding: 20px;
+
+    background: #f8faf8;
+
+    border: 1px solid #d9e2d9;
+
+    border-radius: 10px;
+
+}
+
+.coordinate-search h3 {
+
+    margin-top: 0;
+
+    color: #1b5e20;
+
+}
+
+.coordinate-inputs {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr auto;
+
+    gap: 15px;
+
+    align-items: end;
+
+}
+
+.coordinate-inputs label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: bold;
+
+}
+
+.coordinate-inputs input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #bbb;
+
+    border-radius: 7px;
+
+    font-size: 16px;
+
+}
+
+.coordinate-inputs button {
+
+    padding: 12px 20px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: #1b5e20;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+.coordinate-inputs button:hover {
+
+    background: #2e7d32;
+
+}
+
+.coordinate-error {
+
+    margin-top: 10px;
+
+    color: #c62828;
+
+    font-weight: bold;
+
+}
+
+@media (max-width: 700px) {
+
+    .coordinate-inputs {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+    
+/* =================================================
+   FOREST NAME SEARCH
+================================================= */
+
+.forest-name-search {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8faf8;
+    border: 1px solid #d9e2d9;
+    border-radius: 10px;
+}
+
+.forest-name-search h3 {
+    margin-top: 0;
+    color: #1b5e20;
+}
+
+.forest-name-inputs {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.forest-name-inputs label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: bold;
+}
+
+.forest-name-inputs input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #bbb;
+    border-radius: 7px;
+    font-size: 16px;
+}
+
+.forest-name-inputs button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 7px;
+    background: #1b5e20;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.forest-name-inputs button:hover {
+    background: #2e7d32;
+}
+
+.forest-search-message {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+@media (max-width: 700px) {
+    .forest-name-inputs {
+        grid-template-columns: 1fr;
+    }
+}
+
+    
+/* =================================================
+   FOREST IMAGE GPS SEARCH
+================================================= */
+
+.forest-image-search {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8faf8;
+    border: 1px solid #d9e2d9;
+    border-radius: 10px;
+}
+
+.forest-image-search h3 {
+    margin-top: 0;
+    color: #1b5e20;
+}
+
+.forest-image-input {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.forest-image-input label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: bold;
+}
+
+.forest-image-input input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 7px;
+    background: white;
+}
+
+.forest-image-input button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 7px;
+    background: #1b5e20;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.forest-image-input button:hover {
+    background: #2e7d32;
+}
+
+.forest-image-input button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.forest-image-message {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.forest-image-preview {
+    display: none;
+    max-width: 280px;
+    max-height: 200px;
+    margin-top: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+@media (max-width: 700px) {
+    .forest-image-input {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+/* =================================================
+   SATELLITE VISUAL EVIDENCE
+================================================= */
+
+.satellite-evidence {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8faf8;
+    border: 1px solid #d9e2d9;
+    border-radius: 10px;
+}
+
+.satellite-evidence h3 {
+    margin-top: 0;
+    color: #1b5e20;
+}
+
+.evidence-status {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.evidence-card {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.evidence-card h4 {
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.evidence-card img {
+    width: 100%;
+    height: auto;
+    min-height: 220px;
+    object-fit: cover;
+    border-radius: 7px;
+    border: 1px solid #ddd;
+}
+
+.evidence-note {
+    margin-top: 12px;
+    color: #666;
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+    .evidence-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* PUBLIC DEFORESTATION REPORT */
+.report-section{border-left:5px solid #c62828;}
+.report-panel{background:#fff8f8;border:1px solid #f0caca;border-radius:10px;padding:20px;}
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+.report-field label{display:block;margin-bottom:7px;font-weight:bold;}
+.report-field input,.report-field textarea{width:100%;padding:12px;border:1px solid #bbb;border-radius:7px;font-size:15px;font-family:inherit;}
+.report-field textarea{min-height:110px;resize:vertical;}
+.report-location-box{background:white;border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:15px;}
+.report-actions{margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;}
+.report-button{padding:12px 20px;border:none;border-radius:7px;background:#c62828;color:white;font-size:16px;font-weight:bold;cursor:pointer;}
+.report-button:hover{background:#b71c1c;}
+.report-button.secondary{background:#1b5e20;}
+.report-preview{display:none;max-width:320px;max-height:240px;margin-top:12px;border-radius:8px;border:1px solid #ddd;}
+.report-message{margin-top:12px;font-weight:bold;}
+@media(max-width:700px){.report-grid{grid-template-columns:1fr;}}
+    
+/* =========================================================
+   BEFORE / AFTER TREE ANALYSIS
+   ========================================================= */
+.tree-analysis-panel{background:#f7faf7;border:1px solid #dbe8dc;border-radius:16px;padding:20px;margin-top:14px}
+.tree-analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.tree-analysis-card{background:#fff;border:1px solid #e1e7e2;border-radius:14px;padding:14px}
+.tree-analysis-card h4{margin:0 0 10px}
+.tree-analysis-preview{width:100%;max-height:280px;object-fit:contain;border-radius:10px;background:#eef3ee;display:none}
+.tree-detection-canvas{display:none;width:100%;height:auto;margin-top:10px;border:1px solid #cfd8cf;border-radius:10px;background:#eef3ee}
+.tree-analysis-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.tree-analysis-button{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:700}
+.tree-analysis-button.primary{background:#287a43;color:#fff}
+.tree-analysis-button.secondary{background:#e8f0e9;color:#235b32}
+.tree-analysis-result{margin-top:16px;padding:16px;border-radius:12px;background:#eef7ef;display:none}
+.tree-analysis-number{font-size:30px;font-weight:800}
+.tree-analysis-note{font-size:13px;color:#59635b;margin-top:10px}
+@media(max-width:800px){.tree-analysis-grid{grid-template-columns:1fr}}
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- ===================================================== -->
+<!-- HEADER -->
+<!-- ===================================================== -->
+
+<header>
+
+    <h1>
+        🌳 Deforestation Early Warning System
+    </h1>
+
+    <p>
+        Global Forest Monitoring & Early Warning
+    </p>
+
+</header>
+
+
+<div class="container">
+
+
+    <!-- ================================================= -->
+    <!-- MAP -->
+    <!-- ================================================= -->
+
+    <div class="section">
+
+        <h2>
+            🌍 Global Monitoring Map
+        </h2>
+
+        <p>
+            Click anywhere on the map to analyze
+            vegetation conditions at that location.
+        </p>
+
+
+        <div id="map"></div>
+
+        <!-- ================================================= -->
+        <!-- FOREST BOUNDARY TOOLS -->
+        <!-- ================================================= -->
+        <div class="forest-boundary-tools" style="margin-top:15px;">
+            <h3>🌳 Forest Boundary</h3>
+            <p>Draw the boundary of the forest you want to monitor inside the blue 100-acre scan box. The system will prevent scans larger than the supported area.</p>
+            <button type="button" id="drawForestButton">✏️ Draw Forest Boundary</button>
+            <button type="button" id="scanForestButton" disabled style="margin-left:8px;">🛰️ Scan Selected Forest</button>
+            <button type="button" id="clearForestButton" style="margin-left:8px;">🗑️ Clear Boundary</button>
+            <div id="forestBoundaryResult" style="margin-top:10px;font-weight:600;"></div>
+        </div>
+
+        <!-- ================================================= -->
+<!-- SEARCH BY COORDINATES -->
+<!-- ================================================= -->
+
+<div class="coordinate-search">
+
+    <h3>📍 Search by Coordinates</h3>
+
+    <p>
+        Enter latitude and longitude to locate a
+        monitoring point on the map.
+    </p>
+
+    <div class="coordinate-inputs">
+
+        <div>
+            <label for="searchLatitude">
+                Latitude
+            </label>
+
+            <input
+                type="number"
+                id="searchLatitude"
+                placeholder="Example: 15.34829"
+                step="any"
+            >
+        </div>
+
+        <div>
+            <label for="searchLongitude">
+                Longitude
+            </label>
+
+            <input
+                type="number"
+                id="searchLongitude"
+                placeholder="Example: 75.75293"
+                step="any"
+            >
+        </div>
+
+        <button
+            type="button"
+            id="searchCoordinateButton"
+        >
+            🔍 Find Location
+        </button>
+
+    </div>
+
+    <div
+        id="coordinateError"
+        class="coordinate-error"
+    ></div>
+
+</div>
+
+
+
+        <!-- ================================================= -->
+        <!-- SEARCH BY FOREST NAME -->
+        <!-- ================================================= -->
+
+        <div class="forest-name-search">
+
+            <h3>🔎 Search by Forest Name</h3>
+
+            <p>
+                Enter the name of a forest, national park, wildlife sanctuary,
+                or protected forest area to locate it on the map.
+            </p>
+
+            <div class="forest-name-inputs">
+
+                <div>
+                    <label for="forestName">
+                        Forest Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="forestName"
+                        placeholder="Example: Bandipur National Park"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <button
+                    type="button"
+                    id="searchForestButton"
+                >
+                    🔍 Find Forest
+                </button>
+
+            </div>
+
+            <div
+                id="forestSearchMessage"
+                class="forest-search-message"
+            ></div>
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- UPLOAD FOREST IMAGE AND READ GPS -->
+        <!-- ================================================= -->
+
+        <div class="forest-image-search">
+
+            <h3>📷 Locate Forest from Photo</h3>
+
+            <p>
+                Upload a forest photo. If the photo contains GPS information
+                in its metadata, the system will automatically locate the
+                photo on the map and start the existing satellite analysis.
+            </p>
+
+            <div class="forest-image-input">
+
+                <div>
+                    <label for="forestImage">
+                        Forest Photo
+                    </label>
+
+                    <input
+                        type="file"
+                        id="forestImage"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                    >
+                </div>
+
+                <button
+                    type="button"
+                    id="scanForestImageButton"
+                >
+                    📍 Locate from Photo
+                </button>
+
+            </div>
+
+            <img
+                id="forestImagePreview"
+                class="forest-image-preview"
+                alt="Selected forest photo preview"
+            >
+
+            <div
+                id="forestImageMessage"
+                class="forest-image-message"
+            ></div>
+
+        </div>
+
+
+
+        <div
+            id="loading"
+            class="loading"
+        >
+
+            🛰️
+
+            <strong>
+                Analyzing satellite data...
+            </strong>
+
+            <br>
+
+            Please wait while the satellite
+            data is being processed.
+
+        </div>
+
+
+        <div
+            id="error"
+            class="error"
+        >
+
+            ❌
+
+            <strong>
+                Error:
+            </strong>
+
+            <span id="errorMessage"></span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+
+
+<!-- PUBLIC DEFORESTATION REPORT -->
+<div class="section report-section" id="publicReportSection">
+<h2>🚨 Report Suspected Deforestation</h2>
+<p>Did you see trees being cut down or suspected forest damage? Upload the evidence photo and describe what you observed.</p>
+<div class="report-panel">
+<div class="report-location-box">
+<strong>📍 Report Location</strong>
+<p id="reportLocationText" style="margin:8px 0 0;">No location selected.</p>
+<small>📷 The evidence photo GPS is used as the report location. A separate map location is not required.</small>
+</div>
+<div class="report-grid">
+<div class="report-field">
+<label for="reportEvidenceImage">📷 Evidence Photo</label>
+<input type="file" id="reportEvidenceImage" accept="image/jpeg,image/jpg,image/png,image/webp">
+<img id="reportEvidencePreview" class="report-preview" alt="Deforestation evidence preview">
+</div>
+<div class="report-field">
+<label for="reportDescription">📝 What did you observe?</label>
+<textarea id="reportDescription" placeholder="Example: I observed several freshly cut trees near the forest road."></textarea>
+</div>
+</div>
+<div class="report-actions">
+<button type="button" class="report-button" id="submitReportButton">🚨 Submit Deforestation Report</button>
+</div>
+<div id="reportMessage" class="report-message"></div>
+</div>
+</div>
+
+    
+<!-- ================================================= -->
+<!-- BEFORE / AFTER TREE ANALYSIS -->
+<!-- ================================================= -->
+<div class="section" id="treeAnalysisSection">
+    <h2>🌳 Before &amp; After Tree Analysis</h2>
+    <p>
+        Upload a before photo and an after photo of the same area.
+        The system will prepare them for AI-based tree detection.
+    </p>
+
+    <div class="tree-analysis-panel">
+        <div class="tree-analysis-grid">
+            <div class="tree-analysis-card">
+                <h4>📷 Before Image</h4>
+                <input type="file" id="treeBeforeImage" accept="image/jpeg,image/jpg,image/png,image/webp">
+                <img id="treeBeforePreview" class="tree-analysis-preview" alt="Before image preview">
+                <canvas id="treeBeforeBoxes" class="tree-detection-canvas" aria-label="Before image with AI detection boxes"></canvas>
+            </div>
+
+            <div class="tree-analysis-card">
+                <h4>📷 After Image</h4>
+                <input type="file" id="treeAfterImage" accept="image/jpeg,image/jpg,image/png,image/webp">
+                <img id="treeAfterPreview" class="tree-analysis-preview" alt="After image preview">
+                <canvas id="treeAfterBoxes" class="tree-detection-canvas" aria-label="After image with AI detection boxes"></canvas>
+            </div>
+        </div>
+
+        <div class="tree-analysis-actions">
+            <button type="button" class="tree-analysis-button primary" id="prepareTreeAnalysisButton">
+                🌳 Analyze Before vs After
+            </button>
+            <button type="button" class="tree-analysis-button secondary" id="clearTreeAnalysisButton">
+                Clear
+            </button>
+        </div>
+
+        <div id="treeAnalysisResult" class="tree-analysis-result"></div>
+    </div>
+</div>
+
+<!-- MONITORING -->
+    <!-- ================================================= -->
+
+    <div class="section monitoring-section">
+
+        <h2>
+            🛰️ System Monitoring
+        </h2>
+
+
+        <div class="monitoring-panel">
+
+
+            <div class="monitoring-status">
+
+                <span class="status-dot"></span>
+
+                <strong>
+                    Monitoring Active
+                </strong>
+
+            </div>
+
+
+            <div class="monitoring-info">
+
+
+                <div>
+
+                    <span>
+                        Monitoring Interval
+                    </span>
+
+                    <strong>
+                        30 Minutes
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Last Scheduled Check
+                    </span>
+
+                    <strong id="lastScanTime">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Next Scheduled Check
+                    </span>
+
+                    <strong id="nextScanTime">
+                        --
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="monitoring-message">
+
+                🔄
+
+                <span id="monitoringMessage">
+
+                    System monitoring is active
+
+                </span>
+
+            </div>
+
+
+            <small>
+
+                Monitoring status indicator.
+                Satellite data requests are made only
+                when a location is selected.
+
+            </small>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SELECTED LOCATION -->
+    <!-- ================================================= -->
+
+    <div class="section">
+
+        <h2>
+            📍 Selected Location
+        </h2>
+
+
+        <div class="grid">
+
+
+            <div class="card">
+
+                <h3>
+                    Latitude
+                </h3>
+
+                <p
+                    id="latitude"
+                    class="value"
+                >
+                    Not selected
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    Longitude
+                </h3>
+
+                <p
+                    id="longitude"
+                    class="value"
+                >
+                    Not selected
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- FOREST CONDITION -->
+    <!-- ================================================= -->
+
+    <div class="section">
+
+        <h2>
+            🌳 Forest Condition
+        </h2>
+
+
+        <div class="grid">
+
+
+            <!-- PREVIOUS DATE -->
+
+            <div class="card">
+
+                <h3>
+                    📅 Previous Observation
+                </h3>
+
+                <p
+                    id="previousDate"
+                    class="value"
+                >
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- PRESENT DATE -->
+
+            <div class="card">
+
+                <h3>
+                    📅 Present Observation
+                </h3>
+
+                <p
+                    id="presentDate"
+                    class="value"
+                >
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- PREVIOUS NDVI -->
+
+            <div class="card">
+
+                <h3>
+                    🌿 Previous NDVI
+                </h3>
+
+                <p
+                    id="previousNDVI"
+                    class="value"
+                >
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- PRESENT NDVI -->
+
+            <div class="card">
+
+                <h3>
+                    🌿 Present NDVI
+                </h3>
+
+                <p
+                    id="presentNDVI"
+                    class="value"
+                >
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- CHANGE -->
+
+            <div class="card">
+
+                <h3>
+                    📉 Vegetation Change
+                </h3>
+
+                <p
+                    id="change"
+                    class="value"
+                >
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- RISK -->
+
+            <div class="card">
+
+                <h3>
+                    🚦 Deforestation Risk
+                </h3>
+
+                <p
+                    id="risk"
+                    class="risk"
+                >
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- TREND -->
+
+            <div class="card">
+
+                <h3>
+                    📈 Vegetation Trend
+                </h3>
+
+                <p
+                    id="trend"
+                    class="value"
+                >
+                    --
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="status">
+
+
+            <p>
+
+                <strong>
+                    Monitoring Status:
+                </strong>
+
+                <span id="status">
+                    Select a location.
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Data Source:
+                </strong>
+
+                <span
+                    id="dataSource"
+                    class="badge"
+                >
+                    --
+
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Trend Information:
+                </strong>
+
+                <span id="trendMessage">
+                    --
+                </span>
+
+            </p>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ALERT -->
+    <!-- ================================================= -->
+
+    <div
+        class="section"
+        id="alertSection"
+    >
+
+        <h2>
+            🚨 Potential Deforestation Alert
+        </h2>
+
+
+        <div
+            id="alertBox"
+            class="alert-box"
+        >
+
+            <h3 id="alertTitle">
+                🚨 Warning
+            </h3>
+
+
+            <p>
+
+                <strong>
+                    Location:
+                </strong>
+
+                <span id="alertLocation">
+                    --
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Previous Observation:
+                </strong>
+
+                <span id="alertPreviousDate">
+                    --
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Present Observation:
+                </strong>
+
+                <span id="alertPresentDate">
+                    --
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    NDVI Change:
+                </strong>
+
+                <span id="alertChange">
+                    --
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Risk Level:
+                </strong>
+
+                <span id="alertRisk">
+                    --
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Vegetation Trend:
+                </strong>
+
+                <span id="alertTrend">
+                    --
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Message:
+                </strong>
+
+                <span id="alertMessage">
+                    --
+                </span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Recommended Action:
+                </strong>
+
+                Verify the location using field inspection
+                and additional satellite evidence.
+
+            </p>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SATELLITE VISUAL EVIDENCE -->
+    <!-- ================================================= -->
+
+    <div class="section satellite-evidence" id="satelliteEvidenceSection" style="display:none;">
+
+        <h2>🛰️ Satellite Visual Evidence</h2>
+
+        <p>
+            Before-and-after Sentinel-2 images for the selected monitoring location.
+            These images are supporting evidence and should be interpreted together
+            with the NDVI and forest-cover analysis.
+        </p>
+
+        <div id="evidenceStatus" class="evidence-status"></div>
+
+        <div class="evidence-grid">
+
+            <div class="evidence-card">
+                <h4>📅 Before — <span id="evidenceBeforeDate">--</span></h4>
+                <img id="evidenceBeforeImage" alt="Before Sentinel-2 satellite evidence">
+            </div>
+
+            <div class="evidence-card">
+                <h4>📅 After — <span id="evidenceAfterDate">--</span></h4>
+                <img id="evidenceAfterImage" alt="After Sentinel-2 satellite evidence">
+            </div>
+
+        </div>
+
+        <div class="evidence-note">
+            Sentinel-2 observations are not live video. Cloud cover, shadows, seasonal vegetation,
+            and image availability can affect visual interpretation.
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- NDVI GRAPH -->
+    <!-- ================================================= -->
+
+    <div class="section">
+
+        <h2>
+            📈 NDVI Vegetation Trend
+        </h2>
+
+
+        <p>
+
+            Historical vegetation condition for the
+            selected monitoring location.
+
+        </p>
+
+
+        <div class="chart-container">
+
+            <canvas id="ndviChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SATELLITE HISTORY -->
+    <!-- ================================================= -->
+
+    <div class="section">
+
+        <h2>
+            📊 Satellite Observation History
+        </h2>
+
+
+        <div class="history">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Observation Date
+                        </th>
+
+                        <th>
+                            NDVI
+                        </th>
+
+                        <th>
+                            Data Source
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="historyBody">
+
+                    <tr>
+
+                        <td colspan="3">
+
+                            No observations yet.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- FOOTER -->
+<!-- ===================================================== -->
+
+<footer>
+
+    Deforestation Early Warning System
+
+    <br>
+
+    Sentinel-2 Satellite Monitoring
+
+</footer>
+
+
+<!-- ===================================================== -->
+<!-- LEAFLET -->
+<!-- ===================================================== -->
+
+<script type="module">
+import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm";
+env.allowLocalModels = false;
+window.TreeAI = { pipeline, ready: false, detector: null };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+<script>
+
+
+// =========================================================
+// MAP
+// =========================================================
+
+const map =
+
+    L.map("map")
+
+        .setView(
+            [20, 0],
+            2
+        );
+
+
+L.tileLayer(
+
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+    {
+
+        attribution:
+            "&copy; OpenStreetMap contributors",
+
+        maxZoom:
+            19
+
+    }
+
+).addTo(map);
+
+// =========================================================
+// FOREST BOUNDARY VARIABLES
+// =========================================================
+
+let forestBoundaryLayer = null;
+let forestBoundaryDrawing = false;
+const forestBoundaryGroup = new L.FeatureGroup();
+forestBoundaryGroup.addTo(map);
+
+// Maximum area allowed for a user-selected forest scan.
+const MAX_SCAN_AREA_ACRES = 100;
+const MAX_SCAN_AREA_SQ_M = MAX_SCAN_AREA_ACRES * 4046.8564224;
+const MAX_SCAN_SIDE_M = Math.sqrt(MAX_SCAN_AREA_SQ_M);
+let maxScanBoxLayer = null;
+
+// =========================================================
+// FOREST BOUNDARY DRAWING
+// =========================================================
+
+function getPolygonAreaAcres(layer) {
+    if (!layer) return 0;
+    const latLngs = layer.getLatLngs()[0];
+    const earthRadius = 6378137;
+    let area = 0;
+    for (let i = 0; i < latLngs.length; i++) {
+        const p1 = latLngs[i];
+        const p2 = latLngs[(i + 1) % latLngs.length];
+        const lon1 = p1.lng * Math.PI / 180;
+        const lon2 = p2.lng * Math.PI / 180;
+        const lat1 = p1.lat * Math.PI / 180;
+        const lat2 = p2.lat * Math.PI / 180;
+        area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+    }
+    area = Math.abs(area * earthRadius * earthRadius / 2);
+    return area / 4046.8564224;
+}
+
+function updateScanBoundaryStatus() {
+    if (!forestBoundaryLayer) return;
+    const acres = getPolygonAreaAcres(forestBoundaryLayer);
+    const resultBox = document.getElementById("forestBoundaryResult");
+    const scanButton = document.getElementById("scanForestButton");
+    const hectares = acres * 0.40468564224;
+
+    if (acres > MAX_SCAN_AREA_ACRES) {
+        resultBox.innerHTML =
+            "🔴 <strong>Boundary too large.</strong><br>" +
+            "Selected: <strong>" + acres.toFixed(2) + " acres</strong> (" + hectares.toFixed(2) + " ha)<br>" +
+            "Maximum scan area: <strong>" + MAX_SCAN_AREA_ACRES + " acres</strong> (" + (MAX_SCAN_AREA_ACRES * 0.40468564224).toFixed(2) + " ha).<br>" +
+            "Please redraw the forest boundary inside the blue scan box.";
+        scanButton.disabled = true;
+    } else {
+        resultBox.innerHTML =
+            "🟢 <strong>Ready to scan.</strong><br>" +
+            "Selected forest area: <strong>" + acres.toFixed(2) + " acres</strong> (" + hectares.toFixed(2) + " ha)<br>" +
+            "Maximum scan area: <strong>" + MAX_SCAN_AREA_ACRES + " acres</strong>.";
+        scanButton.disabled = false;
+    }
+}
+
+function showMaximumScanBox(center = map.getCenter()) {
+    if (maxScanBoxLayer) {
+        map.removeLayer(maxScanBoxLayer);
+    }
+
+    /*
+        EXACT PROJECT SCAN WINDOW:
+        100 acres = 404,685.64224 m²
+        Square side = sqrt(area) = 636.149072 m
+
+        The box is a visual 100-acre scan window centered
+        on the selected/current map location.
+    */
+    const halfSide = MAX_SCAN_SIDE_M / 2;
+
+    // Convert local metre offsets to latitude/longitude.
+    // This keeps the displayed square approximately 636.15 m
+    // on each side at the selected latitude.
+    const metersPerDegreeLat = 111132.92;
+    const metersPerDegreeLon =
+        111412.84 * Math.cos(center.lat * Math.PI / 180);
+
+    const latDelta = halfSide / metersPerDegreeLat;
+    const lonDelta = halfSide / metersPerDegreeLon;
+
+    maxScanBoxLayer = L.rectangle(
+        [
+            [center.lat - latDelta, center.lng - lonDelta],
+            [center.lat + latDelta, center.lng + lonDelta]
+        ],
+        {
+            color: "#1565c0",
+            weight: 3,
+            dashArray: "10, 7",
+            fillColor: "#42a5f5",
+            fillOpacity: 0.08,
+            interactive: false
+        }
+    ).addTo(map);
+
+    maxScanBoxLayer.bindTooltip(
+        "🟦 100-acre Sentinel-2 scan window",
+        {
+            sticky: true
+        }
+    );
+}
+
+const drawControl = new L.Control.Draw({
+    position: "topleft",
+    draw: {
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        circlemarker: false,
+        marker: false,
+        polygon: {
+            allowIntersection: false,
+            showArea: true,
+            metric: true,
+            shapeOptions: {
+                weight: 3
+            }
+        }
+    },
+    edit: {
+        featureGroup: forestBoundaryGroup,
+        remove: true
+    }
+});
+
+map.addControl(drawControl);
+
+map.on("draw:created", function(event) {
+    forestBoundaryDrawing = false;
+    if (forestBoundaryLayer !== null) {
+        forestBoundaryGroup.removeLayer(forestBoundaryLayer);
+    }
+
+    forestBoundaryLayer = event.layer;
+    forestBoundaryGroup.addLayer(forestBoundaryLayer);
+
+    updateScanBoundaryStatus();
+});
+
+map.on("draw:edited", function() {
+    updateScanBoundaryStatus();
+});
+
+map.on("draw:deleted", function() {
+    forestBoundaryLayer = null;
+    document.getElementById("scanForestButton").disabled = true;
+    document.getElementById("forestBoundaryResult").textContent = "No forest boundary selected.";
+});
+
+function showForestBoundaryArea() {
+    if (!forestBoundaryLayer) return;
+
+    const latLngs = forestBoundaryLayer.getLatLngs()[0];
+    let area = 0;
+
+    // Spherical polygon area approximation using Leaflet coordinates.
+    const earthRadius = 6378137;
+    for (let i = 0; i < latLngs.length; i++) {
+        const p1 = latLngs[i];
+        const p2 = latLngs[(i + 1) % latLngs.length];
+        const lon1 = p1.lng * Math.PI / 180;
+        const lon2 = p2.lng * Math.PI / 180;
+        const lat1 = p1.lat * Math.PI / 180;
+        const lat2 = p2.lat * Math.PI / 180;
+        area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+    }
+
+    area = Math.abs(area * earthRadius * earthRadius / 2);
+    const acres = area / 4046.8564224;
+    const hectares = area / 10000;
+
+    document.getElementById("forestBoundaryResult").innerHTML =
+        "🌳 Selected forest area: <strong>" + acres.toFixed(2) + " acres</strong> (" + hectares.toFixed(2) + " hectares)";
+}
+
+document.getElementById("drawForestButton").addEventListener("click", function() {
+    forestBoundaryDrawing = true;
+
+    // Put the fixed 100-acre window at the current map center.
+    showMaximumScanBox();
+
+    document.getElementById("forestBoundaryResult").innerHTML =
+        "🟦 <strong>100-acre scan window shown.</strong><br>" +
+        "Draw the forest boundary inside the blue box.<br>" +
+        "The selected forest must not exceed 100 acres.";
+
+    new L.Draw.Polygon(
+        map,
+        drawControl.options.draw.polygon
+    ).enable();
+});
+
+document.getElementById("clearForestButton").addEventListener("click", function() {
+    forestBoundaryGroup.clearLayers();
+    forestBoundaryLayer = null;
+    document.getElementById("scanForestButton").disabled = true;
+    document.getElementById("forestBoundaryResult").textContent = "No forest boundary selected.";
+    if (maxScanBoxLayer) {
+        map.removeLayer(maxScanBoxLayer);
+        maxScanBoxLayer = null;
+    }
+});
+
+// =========================================================
+// SCAN SELECTED FOREST BOUNDARY
+// =========================================================
+
+document.getElementById("scanForestButton").addEventListener("click", async function() {
+    const resultBox = document.getElementById("forestBoundaryResult");
+    const scanButton = document.getElementById("scanForestButton");
+
+    if (!forestBoundaryLayer) {
+        resultBox.textContent = "⚠️ Draw a forest boundary first.";
+        return;
+    }
+
+    const selectedAcres = getPolygonAreaAcres(forestBoundaryLayer);
+
+    if (selectedAcres > MAX_SCAN_AREA_ACRES) {
+        updateScanBoundaryStatus();
+        return;
+    }
+
+    const geometry = forestBoundaryLayer.toGeoJSON().geometry;
+
+    scanButton.disabled = true;
+    resultBox.textContent = "🛰️ Scanning the selected forest with Sentinel-2... Please wait.";
+
+    try {
+        const response = await fetch("/boundary-scan", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ geometry: geometry })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Forest scan failed.");
+        }
+
+        const observations = data.observations || [];
+        const latest = observations.length ? observations[observations.length - 1] : null;
+
+        if (!latest) {
+            resultBox.innerHTML =
+                "🌳 Area: <strong>" + data.area_acres.toFixed(2) + " acres</strong><br>" +
+                "⚠️ No valid Sentinel-2 observation was found for this boundary.";
+            return;
+        }
+
+        resultBox.innerHTML =
+            "🌳 Selected area: <strong>" + data.area_acres.toFixed(2) + " acres</strong> (" +
+            data.area_hectares.toFixed(2) + " ha)<br>" +
+            "🛰️ Latest observation: <strong>" + latest.date + "</strong><br>" +
+            "📈 NDVI: <strong>" + latest.ndvi + "</strong><br>" +
+            "🌲 Forest-like cover: <strong>" + latest.forest_cover + "%</strong><br>" +
+            "🌲 Estimated forest-like area: <strong>" +
+            (data.area_acres * (Number(latest.forest_cover) / 100)).toFixed(2) +
+            " acres</strong><br>" +
+            "🛰️ Satellite observations: <strong>" + observations.length + "</strong>";
+
+    } catch (error) {
+        console.error(error);
+        resultBox.textContent = "❌ Scan failed: " + error.message;
+    } finally {
+        scanButton.disabled = false;
+    }
+});
+
+
+// =========================================================
+
+
+// PUBLIC DEFORESTATION REPORT
+let reportLatitude=null;
+let reportLongitude=null;
+function setReportLocation(latitude,longitude){
+ reportLatitude=Number(latitude); reportLongitude=Number(longitude);
+ const el=document.getElementById("reportLocationText");
+ if(el && Number.isFinite(reportLatitude) && Number.isFinite(reportLongitude)){
+  el.innerHTML="Latitude: <strong>"+reportLatitude.toFixed(5)+"</strong>, Longitude: <strong>"+reportLongitude.toFixed(5)+"</strong>";
+ }
+}
+async function locateReportEvidenceFromImage(file) {
+ const message=document.getElementById("reportMessage");
+ if(!file) return false;
+
+ message.textContent="📍 Reading GPS from the evidence photo...";
+ let gps=null;
+ try {
+   gps=await exifr.gps(file);
+ } catch(error) {
+   console.warn("Evidence EXIF GPS read failed:",error);
+ }
+
+ if(gps && Number.isFinite(Number(gps.latitude)) && Number.isFinite(Number(gps.longitude))) {
+   await useReportEvidenceCoordinates(Number(gps.latitude),Number(gps.longitude),"EXIF GPS");
+   return true;
+ }
+
+ if(typeof Tesseract !== "undefined") {
+   message.textContent="🔎 No EXIF GPS found. Reading visible GPS text from the evidence photo...";
+   try {
+     const result=await Tesseract.recognize(file,"eng");
+     const text=result && result.data ? result.data.text : "";
+     const coordinates=extractCoordinatesFromOCR(text);
+     if(coordinates) {
+       await useReportEvidenceCoordinates(coordinates.latitude,coordinates.longitude,"GPS text detected by OCR");
+       return true;
+     }
+   } catch(error) {
+     console.warn("Evidence GPS OCR failed:",error);
+   }
+ }
+
+ reportLatitude=null;
+ reportLongitude=null;
+ message.textContent="⚠️ No GPS location was found in the evidence photo. Please upload a geotagged photo (or a photo showing readable latitude/longitude).";
+ return false;
+}
+
+async function useReportEvidenceCoordinates(latitude,longitude,source) {
+ setReportLocation(latitude,longitude);
+ map.setView([latitude,longitude],15);
+ if(marker!==null) map.removeLayer(marker);
+ marker=L.marker([latitude,longitude]).addTo(map);
+ const googleMapsUrl="https://www.google.com/maps/dir/?api=1&destination="+latitude.toFixed(6)+","+longitude.toFixed(6);
+ marker.bindPopup("<strong>📷 Evidence Location</strong><br>Latitude: "+latitude.toFixed(6)+"<br>Longitude: "+longitude.toFixed(6)+"<br>Source: "+source+"<br><br><a href=\""+googleMapsUrl+"\" target=\"_blank\" rel=\"noopener\">📍 Open in Google Maps</a>");
+ marker.openPopup();
+ document.getElementById("reportMessage").textContent="🟢 Evidence location found: "+latitude.toFixed(6)+", "+longitude.toFixed(6)+". Starting satellite analysis...";
+ analyzeLocation(latitude,longitude);
+}
+
+document.getElementById("reportEvidenceImage").addEventListener("change",async function(){
+ const file=this.files&&this.files[0];
+ const preview=document.getElementById("reportEvidencePreview");
+ if(!file){preview.style.display="none";preview.removeAttribute("src");reportLatitude=null;reportLongitude=null;return;}
+ preview.src=URL.createObjectURL(file);
+ preview.style.display="block";
+ await locateReportEvidenceFromImage(file);
+});
+document.getElementById("submitReportButton").addEventListener("click",async function(){
+ const message=document.getElementById("reportMessage");
+ const description=document.getElementById("reportDescription").value.trim();
+ const image=document.getElementById("reportEvidenceImage").files[0];
+ if(reportLatitude===null||reportLongitude===null){message.textContent="⚠️ The report location must come from the GPS of the evidence photo. Please upload a geotagged evidence photo.";return;}
+ if(!description){message.textContent="⚠️ Please describe what you observed.";return;}
+ if(!image){message.textContent="⚠️ Please upload an evidence photo.";return;}
+
+ const formData=new FormData();
+ formData.append("latitude",reportLatitude);
+ formData.append("longitude",reportLongitude);
+ formData.append("description",description);
+ formData.append("evidence",image);
+
+ message.textContent="⏳ Submitting your report...";
+
+ try{
+   const response=await fetch("/api/public-reports",{
+     method:"POST",
+     body:formData
+   });
+
+   const result=await response.json();
+
+   if(!response.ok || !result.success){
+     throw new Error(result.message || "Report submission failed.");
+   }
+
+   message.innerHTML="🟢 <strong>Report submitted successfully.</strong><br>Report ID: <strong>"+result.report_id+"</strong><br>Status: <strong>NEW</strong>";
+   document.getElementById("reportDescription").value="";
+   document.getElementById("reportEvidenceImage").value="";
+   const preview=document.getElementById("reportEvidencePreview");
+   preview.style.display="none";
+   preview.removeAttribute("src");
+ }catch(error){
+   message.textContent="❌ "+error.message;
+ }
+});
+
+
+// VARIABLES
+// =========================================================
+
+let marker = null;
+
+let ndviChart = null;
+
+// =========================================================
+// VISUAL MONITORING TIMER
+// =========================================================
+//
+// IMPORTANT:
+//
+// This is ONLY a visual indicator.
+//
+// It does NOT call:
+// - Copernicus
+// - Flask
+// - PostgreSQL
+//
+// =========================================================
+
+const MONITORING_INTERVAL =
+    30 * 60;
+
+let remainingSeconds =
+    MONITORING_INTERVAL;
+
+
+// =========================================================
+// FORMAT TIME
+// =========================================================
+
+function formatMonitoringTime(date) {
+
+    return date.toLocaleTimeString(
+
+        [],
+
+        {
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit",
+
+            second:
+                "2-digit"
+
+        }
+
+    );
+
+}
+
+
+// =========================================================
+// INITIAL MONITORING TIME
+// =========================================================
+
+const monitoringNow =
+    new Date();
+
+
+const monitoringNext =
+
+    new Date(
+
+        monitoringNow.getTime()
+
+        +
+
+        MONITORING_INTERVAL * 1000
+
+    );
+
+
+document.getElementById(
+    "lastScanTime"
+).textContent =
+
+    formatMonitoringTime(
+        monitoringNow
+    );
+
+
+document.getElementById(
+    "nextScanTime"
+).textContent =
+
+    formatMonitoringTime(
+        monitoringNext
+    );
+
+
+// =========================================================
+// MONITORING TIMER
+// =========================================================
+
+setInterval(
+
+    function() {
+
+        remainingSeconds--;
+
+
+        if (
+            remainingSeconds <= 0
+        ) {
+
+
+            // UI UPDATE ONLY
+
+            const displayTime =
+                new Date();
+
+
+            const nextDisplayTime =
+
+                new Date(
+
+                    displayTime.getTime()
+
+                    +
+
+                    MONITORING_INTERVAL * 1000
+
+                );
+
+
+            document.getElementById(
+                "lastScanTime"
+            ).textContent =
+
+                formatMonitoringTime(
+                    displayTime
+                );
+
+
+            document.getElementById(
+                "nextScanTime"
+            ).textContent =
+
+                formatMonitoringTime(
+                    nextDisplayTime
+                );
+
+
+            remainingSeconds =
+                MONITORING_INTERVAL;
+
+
+            document.getElementById(
+                "monitoringMessage"
+            ).textContent =
+
+                "System monitoring continues";
+
+        }
+
+    },
+
+    1000
+
+);
+
+
+// =========================================================
+// NDVI CHART
+// =========================================================
+
+function updateNDVIChart(
+    observations
+) {
+
+
+    const canvas =
+        document.getElementById(
+            "ndviChart"
+        );
+
+
+    if (!canvas) {
+
+        return;
+
+    }
+
+
+    const labels = [];
+
+    const values = [];
+
+
+    observations.forEach(
+
+        observation => {
+
+            labels.push(
+                observation.date
+            );
+
+
+            values.push(
+
+                Number(
+                    observation.ndvi
+                )
+
+            );
+
+        }
+
+    );
+
+
+    if (ndviChart !== null) {
+
+        ndviChart.destroy();
+
+    }
+
+
+    ndviChart = new Chart(
+
+        canvas,
+
+        {
+
+            type:
+                "line",
+
+            data:
+                {
+
+                    labels:
+                        labels,
+
+                    datasets:
+                        [
+
+                            {
+
+                                label:
+                                    "NDVI",
+
+                                data:
+                                    values,
+
+                                borderWidth:
+                                    3,
+
+                                pointRadius:
+                                    5,
+
+                                tension:
+                                    0.3
+
+                            }
+
+                        ]
+
+                },
+
+            options:
+                {
+
+                    responsive:
+                        true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    scales:
+                        {
+
+                            y:
+                                {
+
+                                    title:
+                                        {
+
+                                            display:
+                                                true,
+
+                                            text:
+                                                "NDVI Value"
+
+                                        }
+
+                                },
+
+                            x:
+                                {
+
+                                    title:
+                                        {
+
+                                            display:
+                                                true,
+
+                                            text:
+                                                "Observation Date"
+
+                                        }
+
+                                }
+
+                        }
+
+                }
+
+        }
+
+    );
+
+}
+
+
+// =========================================================
+// ANALYZE LOCATION
+// =========================================================
+// Both map clicks and coordinate searches use this SAME function.
+// This prevents duplicate frontend logic and does not create any
+// additional automatic scanning requests.
+// =========================================================
+
+function analyzeLocation(latitude, longitude) {
+
+    setReportLocation(latitude, longitude);
+
+    resetSatelliteEvidence();
+
+    // -------------------------------------------------
+    // DISPLAY LOCATION
+    // -------------------------------------------------
+
+    document.getElementById(
+        "latitude"
+    ).textContent = latitude.toFixed(5);
+
+    document.getElementById(
+        "longitude"
+    ).textContent = longitude.toFixed(5);
+
+    // -------------------------------------------------
+    // RESET
+    // -------------------------------------------------
+
+    document.getElementById(
+        "error"
+    ).classList.remove("active");
+
+    document.getElementById(
+        "alertSection"
+    ).style.display = "none";
+
+    document.getElementById(
+        "loading"
+    ).classList.add("active");
+
+    document.getElementById(
+        "status"
+    ).textContent = "Checking satellite data...";
+
+    document.getElementById(
+        "dataSource"
+    ).textContent = "Loading...";
+
+    document.getElementById(
+        "previousDate"
+    ).textContent = "--";
+
+    document.getElementById(
+        "presentDate"
+    ).textContent = "--";
+
+    document.getElementById(
+        "previousNDVI"
+    ).textContent = "--";
+
+    document.getElementById(
+        "presentNDVI"
+    ).textContent = "--";
+
+    document.getElementById(
+        "change"
+    ).textContent = "--";
+
+    document.getElementById(
+        "risk"
+    ).textContent = "--";
+
+    document.getElementById(
+        "trend"
+    ).textContent = "--";
+
+    document.getElementById(
+        "trendMessage"
+    ).textContent = "--";
+
+    // -------------------------------------------------
+    // SEND LOCATION TO EXISTING BACKEND
+    // -------------------------------------------------
+
+    fetch(
+        "/location",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude
+            })
+        }
+    )
+
+    // -------------------------------------------------
+    // RESPONSE
+    // -------------------------------------------------
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            return response.json()
+                .then(data => {
+
+                    throw new Error(
+                        data.message || "Server error"
+                    );
+
+                })
+                .catch(error => {
+
+                    if (error instanceof Error) {
+                        throw error;
+                    }
+
+                    throw new Error("Server error");
+
+                });
+
+        }
+
+        return response.json();
+
+    })
+
+    // -------------------------------------------------
+    // PROCESS RESPONSE
+    // -------------------------------------------------
+
+    .then(data => {
+
+        console.log(
+            "Server response:",
+            data
+        );
+
+        document.getElementById(
+            "loading"
+        ).classList.remove("active");
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message || "Unable to analyze location."
+            );
+
+        }
+
+        // =============================================
+        // OBSERVATIONS
+        // =============================================
+
+        const observations =
+            Array.isArray(data.observations)
+                ? data.observations
+                : [];
+
+        // =============================================
+        // PREVIOUS / PRESENT DATES
+        // =============================================
+
+        if (observations.length >= 2) {
+
+            const previousObservation =
+                observations[observations.length - 2];
+
+            const presentObservation =
+                observations[observations.length - 1];
+
+            document.getElementById(
+                "previousDate"
+            ).textContent =
+                previousObservation.date || "--";
+
+            document.getElementById(
+                "presentDate"
+            ).textContent =
+                presentObservation.date || "--";
+
+            document.getElementById(
+                "alertPreviousDate"
+            ).textContent =
+                previousObservation.date || "--";
+
+            document.getElementById(
+                "alertPresentDate"
+            ).textContent =
+                presentObservation.date || "--";
+
+        }
+        else if (observations.length === 1) {
+
+            document.getElementById(
+                "previousDate"
+            ).textContent = "Not available";
+
+            document.getElementById(
+                "presentDate"
+            ).textContent =
+                observations[0].date || "--";
+
+            document.getElementById(
+                "alertPreviousDate"
+            ).textContent = "Not available";
+
+            document.getElementById(
+                "alertPresentDate"
+            ).textContent =
+                observations[0].date || "--";
+
+        }
+
+        // =============================================
+        // PREVIOUS NDVI
+        // =============================================
+
+        if (
+            data.previous_ndvi !== null &&
+            data.previous_ndvi !== undefined
+        ) {
+
+            document.getElementById(
+                "previousNDVI"
+            ).textContent =
+                Number(data.previous_ndvi).toFixed(4);
+
+        }
+
+        // =============================================
+        // PRESENT NDVI
+        // =============================================
+
+        if (
+            data.present_ndvi !== null &&
+            data.present_ndvi !== undefined
+        ) {
+
+            document.getElementById(
+                "presentNDVI"
+            ).textContent =
+                Number(data.present_ndvi).toFixed(4);
+
+        }
+
+        // =============================================
+        // CHANGE
+        // =============================================
+
+        if (
+            data.change_percentage !== null &&
+            data.change_percentage !== undefined
+        ) {
+
+            document.getElementById(
+                "change"
+            ).textContent =
+                Number(data.change_percentage).toFixed(2) + "%";
+
+        }
+
+        // =============================================
+        // RISK
+        // =============================================
+
+        const riskElement =
+            document.getElementById("risk");
+
+        if (data.risk_level === "HIGH") {
+
+            riskElement.textContent = "🔴 HIGH";
+
+        }
+        else if (data.risk_level === "MODERATE") {
+
+            riskElement.textContent = "🟡 MODERATE";
+
+        }
+        else {
+
+            riskElement.textContent = "🟢 LOW";
+
+        }
+
+        // =============================================
+        // SATELLITE VISUAL EVIDENCE
+        // =============================================
+
+        if (
+            (data.risk_level === "HIGH" || data.risk_level === "MODERATE") &&
+            observations.length >= 2
+        ) {
+            loadSatelliteEvidence(
+                latitude,
+                longitude,
+                observations
+            );
+        }
+
+        // =============================================
+        // TREND
+        // =============================================
+
+        const trendElement =
+            document.getElementById("trend");
+
+        if (data.trend === "DECLINING") {
+
+            trendElement.textContent = "📉 DECLINING";
+
+        }
+        else if (data.trend === "IMPROVING") {
+
+            trendElement.textContent = "📈 IMPROVING";
+
+        }
+        else if (data.trend === "STABLE") {
+
+            trendElement.textContent = "➡️ STABLE";
+
+        }
+        else {
+
+            trendElement.textContent =
+                "⏳ INSUFFICIENT DATA";
+
+        }
+
+        // =============================================
+        // TREND MESSAGE
+        // =============================================
+
+        document.getElementById(
+            "trendMessage"
+        ).textContent =
+            data.trend_message || "--";
+
+        // =============================================
+        // STATUS
+        // =============================================
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            data.message || "--";
+
+        // =============================================
+        // DATA SOURCE
+        // =============================================
+
+        const sourceElement =
+            document.getElementById("dataSource");
+
+        if (data.data_source === "LIVE") {
+
+            sourceElement.textContent =
+                "🟢 NEW SATELLITE DATA";
+
+            sourceElement.className =
+                "badge live";
+
+        }
+        else {
+
+            sourceElement.textContent =
+                "🔵 CACHED DATA";
+
+            sourceElement.className =
+                "badge cached";
+
+        }
+
+        // =============================================
+        // ALERT
+        // =============================================
+
+        const alertSection =
+            document.getElementById("alertSection");
+
+        const alertBox =
+            document.getElementById("alertBox");
+
+        if (
+            data.risk_level === "HIGH" ||
+            data.risk_level === "MODERATE"
+        ) {
+
+            alertSection.style.display = "block";
+
+            alertBox.classList.remove(
+                "alert-high"
+            );
+
+            alertBox.classList.remove(
+                "alert-moderate"
+            );
+
+            if (data.risk_level === "HIGH") {
+
+                alertBox.classList.add(
+                    "alert-high"
+                );
+
+                document.getElementById(
+                    "alertTitle"
+                ).textContent =
+                    "🚨 HIGH RISK ALERT";
+
+            }
+            else {
+
+                alertBox.classList.add(
+                    "alert-moderate"
+                );
+
+                document.getElementById(
+                    "alertTitle"
+                ).textContent =
+                    "⚠️ MODERATE RISK ALERT";
+
+            }
+
+            document.getElementById(
+                "alertLocation"
+            ).textContent =
+                Number(
+                    data.latitude !== undefined
+                        ? data.latitude
+                        : latitude
+                ).toFixed(5)
+                +
+                ", "
+                +
+                Number(
+                    data.longitude !== undefined
+                        ? data.longitude
+                        : longitude
+                ).toFixed(5);
+
+            document.getElementById(
+                "alertChange"
+            ).textContent =
+                data.change_percentage !== null &&
+                data.change_percentage !== undefined
+                    ? Number(
+                        data.change_percentage
+                    ).toFixed(2) + "%"
+                    : "--";
+
+            document.getElementById(
+                "alertRisk"
+            ).textContent =
+                data.risk_level || "--";
+
+            document.getElementById(
+                "alertTrend"
+            ).textContent =
+                data.trend || "--";
+
+            document.getElementById(
+                "alertMessage"
+            ).textContent =
+                data.message || "--";
+
+        }
+        else {
+
+            alertSection.style.display = "none";
+
+        }
+
+        // =============================================
+        // HISTORY TABLE
+        // =============================================
+
+        const historyBody =
+            document.getElementById("historyBody");
+
+        historyBody.innerHTML = "";
+
+        if (observations.length === 0) {
+
+            historyBody.innerHTML =
+                "<tr>" +
+                "<td colspan='3'>" +
+                "No observations available." +
+                "</td>" +
+                "</tr>";
+
+        }
+        else {
+
+            observations
+                .slice()
+                .reverse()
+                .forEach(observation => {
+
+                    const row =
+                        document.createElement("tr");
+
+                    const dateCell =
+                        document.createElement("td");
+
+                    const ndviCell =
+                        document.createElement("td");
+
+                    const sourceCell =
+                        document.createElement("td");
+
+                    dateCell.textContent =
+                        observation.date || "--";
+
+                    const ndviNumber =
+                        Number(observation.ndvi);
+
+                    ndviCell.textContent =
+                        Number.isFinite(ndviNumber)
+                            ? ndviNumber.toFixed(4)
+                            : "--";
+
+                    sourceCell.textContent =
+                        observation.source ||
+                        "Sentinel-2";
+
+                    row.appendChild(dateCell);
+                    row.appendChild(ndviCell);
+                    row.appendChild(sourceCell);
+
+                    historyBody.appendChild(row);
+
+                });
+
+        }
+
+        // =============================================
+        // CHART
+        // =============================================
+
+        if (observations.length > 0) {
+
+            updateNDVIChart(observations);
+
+        }
+
+    })
+
+    // -------------------------------------------------
+    // ERROR
+    // -------------------------------------------------
+
+    .catch(error => {
+
+        console.error(
+            "Error:",
+            error
+        );
+
+        document.getElementById(
+            "loading"
+        ).classList.remove("active");
+
+        document.getElementById(
+            "error"
+        ).classList.add("active");
+
+        document.getElementById(
+            "errorMessage"
+        ).textContent =
+            error.message || "Unknown error";
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "Unable to retrieve satellite data.";
+
+        document.getElementById(
+            "dataSource"
+        ).textContent =
+            "ERROR";
+
+    });
+
+}
+
+
+// =========================================================
+// SATELLITE VISUAL EVIDENCE
+// =========================================================
+
+function resetSatelliteEvidence() {
+
+    const section =
+        document.getElementById("satelliteEvidenceSection");
+
+    const status =
+        document.getElementById("evidenceStatus");
+
+    const beforeImage =
+        document.getElementById("evidenceBeforeImage");
+
+    const afterImage =
+        document.getElementById("evidenceAfterImage");
+
+    if (section) section.style.display = "none";
+    if (status) status.textContent = "";
+    if (beforeImage) beforeImage.removeAttribute("src");
+    if (afterImage) afterImage.removeAttribute("src");
+}
+
+
+async function loadSatelliteEvidence(
+    latitude,
+    longitude,
+    observations
+) {
+
+    const section =
+        document.getElementById("satelliteEvidenceSection");
+
+    const status =
+        document.getElementById("evidenceStatus");
+
+    if (!section || !status) return;
+
+    if (!Array.isArray(observations) || observations.length < 2) {
+        section.style.display = "none";
+        return;
+    }
+
+    const before =
+        observations[observations.length - 2];
+
+    const after =
+        observations[observations.length - 1];
+
+    if (!before.date || !after.date) {
+        section.style.display = "none";
+        return;
+    }
+
+    section.style.display = "block";
+
+    document.getElementById("evidenceBeforeDate").textContent =
+        before.date;
+
+    document.getElementById("evidenceAfterDate").textContent =
+        after.date;
+
+    status.textContent =
+        "🛰️ Loading before-and-after satellite evidence...";
+
+    try {
+
+        const baseUrl =
+            "/satellite-evidence?latitude=" +
+            encodeURIComponent(latitude) +
+            "&longitude=" +
+            encodeURIComponent(longitude) +
+            "&date=";
+
+        const beforeUrl =
+            baseUrl + encodeURIComponent(before.date);
+
+        const afterUrl =
+            baseUrl + encodeURIComponent(after.date);
+
+        // The browser requests each image endpoint directly.
+        // This avoids a duplicate API request just to test the URL.
+        const beforeImage =
+            document.getElementById("evidenceBeforeImage");
+
+        const afterImage =
+            document.getElementById("evidenceAfterImage");
+
+        let beforeLoaded = false;
+        let afterLoaded = false;
+
+        function updateEvidenceStatus() {
+            if (beforeLoaded && afterLoaded) {
+                status.textContent =
+                    "✅ Satellite evidence loaded.";
+            }
+        }
+
+        beforeImage.onload = function() {
+            beforeLoaded = true;
+            updateEvidenceStatus();
+        };
+
+        afterImage.onload = function() {
+            afterLoaded = true;
+            updateEvidenceStatus();
+        };
+
+        beforeImage.onerror = function() {
+            status.textContent =
+                "⚠️ Unable to load the before satellite image.";
+        };
+
+        afterImage.onerror = function() {
+            status.textContent =
+                "⚠️ Unable to load the after satellite image.";
+        };
+
+        beforeImage.src = beforeUrl;
+        afterImage.src = afterUrl;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Satellite evidence error:",
+            error
+        );
+
+        status.textContent =
+            "⚠️ Satellite visual evidence is unavailable: " +
+            (error.message || "Unknown error");
+    }
+}
+
+
+// =========================================================
+// MAP CLICK
+// =========================================================
+
+map.on(
+    "click",
+    function(event) {
+
+        if (forestBoundaryDrawing) return;
+
+        const latitude =
+            event.latlng.lat;
+
+        const longitude =
+            event.latlng.lng;
+
+        // -------------------------------------------------
+        // REMOVE OLD MARKER
+        // -------------------------------------------------
+
+        if (marker !== null) {
+
+            map.removeLayer(marker);
+
+        }
+
+        // -------------------------------------------------
+        // NEW MARKER
+        // -------------------------------------------------
+
+        marker =
+            L.marker(
+                [latitude, longitude]
+            ).addTo(map);
+
+        marker.bindPopup(
+
+            "<strong>Selected Location</strong>" +
+            "<br>" +
+            "Latitude: " +
+            latitude.toFixed(5) +
+            "<br>" +
+            "Longitude: " +
+            longitude.toFixed(5)
+
+        );
+
+        marker.openPopup();
+
+        // -------------------------------------------------
+        // USE SAME ANALYSIS FUNCTION
+        // -------------------------------------------------
+
+        analyzeLocation(
+            latitude,
+            longitude
+        );
+
+    }
+
+);
+
+
+// =========================================================
+
+// =========================================================
+
+// =========================================================
+// LOCATE FOREST FROM UPLOADED IMAGE GPS
+// =========================================================
+
+const forestImageInput =
+    document.getElementById("forestImage");
+
+const scanForestImageButton =
+    document.getElementById("scanForestImageButton");
+
+const forestImageMessage =
+    document.getElementById("forestImageMessage");
+
+const forestImagePreview =
+    document.getElementById("forestImagePreview");
+
+
+if (forestImageInput) {
+
+    forestImageInput.addEventListener(
+        "change",
+        function() {
+
+            const file =
+                forestImageInput.files[0];
+
+            if (!file) {
+                forestImagePreview.style.display = "none";
+                return;
+            }
+
+            forestImagePreview.src =
+                URL.createObjectURL(file);
+
+            forestImagePreview.style.display = "block";
+
+            forestImageMessage.textContent =
+                "📷 Photo selected. Click 'Locate from Photo'.";
+        }
+    );
+}
+
+
+if (scanForestImageButton) {
+
+    scanForestImageButton.addEventListener(
+        "click",
+        locateForestFromImage
+    );
+}
+
+
+async function locateForestFromImage() {
+
+    const file =
+        forestImageInput.files[0];
+
+    forestImageMessage.textContent = "";
+
+    if (!file) {
+        forestImageMessage.textContent =
+            "❌ Please select a forest photo first.";
+        return;
+    }
+
+    scanForestImageButton.disabled = true;
+
+    try {
+
+        // =====================================================
+        // STEP 1: TRY REAL EXIF GPS METADATA
+        // =====================================================
+
+        forestImageMessage.textContent =
+            "📍 Checking photo GPS metadata...";
+
+        let gps = null;
+
+        try {
+            gps = await exifr.gps(file);
+        }
+        catch (exifError) {
+            console.warn("EXIF GPS read failed:", exifError);
+        }
+
+        if (
+            gps &&
+            Number.isFinite(Number(gps.latitude)) &&
+            Number.isFinite(Number(gps.longitude))
+        ) {
+            await useImageCoordinates(
+                Number(gps.latitude),
+                Number(gps.longitude),
+                "EXIF GPS"
+            );
+            return;
+        }
+
+        // =====================================================
+        // STEP 2: NO EXIF GPS -> READ GPS TEXT FROM IMAGE
+        // =====================================================
+
+        if (typeof Tesseract === "undefined") {
+            throw new Error(
+                "OCR library could not be loaded. Please check your internet connection and refresh the page."
+            );
+        }
+
+        forestImageMessage.textContent =
+            "🔎 No EXIF GPS found. Reading visible GPS text from the photo...";
+
+        // OCR the uploaded image itself. This can detect text such as:
+        // "Lat 15.861564° Long 74.520927°"
+        const ocrResult =
+            await Tesseract.recognize(
+                file,
+                "eng",
+                {
+                    logger: function(progress) {
+
+                        if (
+                            progress &&
+                            progress.status === "recognizing text" &&
+                            Number.isFinite(progress.progress)
+                        ) {
+                            const percent =
+                                Math.round(progress.progress * 100);
+
+                            forestImageMessage.textContent =
+                                "🔎 Reading GPS text from photo... " +
+                                percent +
+                                "%";
+                        }
+                    }
+                }
+            );
+
+        const ocrText =
+            (
+                ocrResult &&
+                ocrResult.data &&
+                ocrResult.data.text
+            )
+                ? ocrResult.data.text
+                : "";
+
+        console.log("OCR text from forest photo:", ocrText);
+
+        const coordinates =
+            extractCoordinatesFromOCR(ocrText);
+
+        if (coordinates) {
+
+            await useImageCoordinates(
+                coordinates.latitude,
+                coordinates.longitude,
+                "GPS text detected by OCR"
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // STEP 3: STILL NOT FOUND
+        // =====================================================
+
+        forestImageMessage.textContent =
+            "⚠️ No GPS location could be detected. " +
+            "The photo has no usable EXIF GPS and no recognizable " +
+            "latitude/longitude text. AI-based visual geolocation can be added next.";
+
+    }
+    catch (error) {
+
+        console.error(
+            "Forest image location error:",
+            error
+        );
+
+        forestImageMessage.textContent =
+            "❌ Unable to locate the forest from this image: " +
+            (error.message || "Unknown error");
+
+    }
+    finally {
+
+        scanForestImageButton.disabled = false;
+
+    }
+
+}
+
+
+// =========================================================
+// EXTRACT LATITUDE/LONGITUDE FROM OCR TEXT
+// =========================================================
+
+function extractCoordinatesFromOCR(text) {
+
+    if (!text) return null;
+
+    // Normalize common OCR mistakes.
+    let normalized =
+        text
+            .replace(/[º°]/g, " ")
+            .replace(/[;,]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+    // Convert common OCR letter mistakes around labels.
+    normalized =
+        normalized
+            .replace(/\bLat(?:itude)?\b/gi, " LAT ")
+            .replace(/\bLong(?:itude)?\b/gi, " LONG ");
+
+    // ---------------------------------------------------------
+    // Preferred pattern:
+    // Lat 15.861564 Long 74.520927
+    // ---------------------------------------------------------
+
+    let match =
+        normalized.match(
+            /LAT(?:ITUDE)?\s*[:=]?\s*([+-]?\d+(?:\.\d+)?)\s+(?:LONG|LON|LNG)(?:ITUDE)?\s*[:=]?\s*([+-]?\d+(?:\.\d+)?)/i
+        );
+
+    if (match) {
+
+        const latitude =
+            Number(match[1]);
+
+        const longitude =
+            Number(match[2]);
+
+        if (isValidCoordinates(latitude, longitude)) {
+            return {
+                latitude: latitude,
+                longitude: longitude
+            };
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Try reversed order:
+    // Long 74.520927 Lat 15.861564
+    // ---------------------------------------------------------
+
+    match =
+        normalized.match(
+            /(?:LONG|LON|LNG)(?:ITUDE)?\s*[:=]?\s*([+-]?\d+(?:\.\d+)?)\s+LAT(?:ITUDE)?\s*[:=]?\s*([+-]?\d+(?:\.\d+)?)/i
+        );
+
+    if (match) {
+
+        const longitude =
+            Number(match[1]);
+
+        const latitude =
+            Number(match[2]);
+
+        if (isValidCoordinates(latitude, longitude)) {
+            return {
+                latitude: latitude,
+                longitude: longitude
+            };
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Fallback:
+    // Look for two decimal coordinate-like numbers.
+    // This helps if OCR reads "Lat" or "Long" incorrectly.
+    // ---------------------------------------------------------
+
+    const numbers =
+        normalized.match(
+            /[+-]?\d{1,3}\.\d{3,}/g
+        ) || [];
+
+    for (let i = 0; i < numbers.length - 1; i++) {
+
+        const first =
+            Number(numbers[i]);
+
+        const second =
+            Number(numbers[i + 1]);
+
+        if (isValidCoordinates(first, second)) {
+            return {
+                latitude: first,
+                longitude: second
+            };
+        }
+
+        if (isValidCoordinates(second, first)) {
+            return {
+                latitude: second,
+                longitude: first
+            };
+        }
+    }
+
+    return null;
+}
+
+
+// =========================================================
+// VALIDATE COORDINATES
+// =========================================================
+
+function isValidCoordinates(latitude, longitude) {
+
+    return (
+        Number.isFinite(latitude) &&
+        Number.isFinite(longitude) &&
+        latitude >= -90 &&
+        latitude <= 90 &&
+        longitude >= -180 &&
+        longitude <= 180
+    );
+}
+
+
+// =========================================================
+// USE IMAGE COORDINATES
+// =========================================================
+
+async function useImageCoordinates(
+    latitude,
+    longitude,
+    source
+) {
+
+    forestImageMessage.textContent =
+        "📍 Location found (" +
+        source +
+        "): " +
+        latitude.toFixed(6) +
+        ", " +
+        longitude.toFixed(6) +
+        ". Moving map...";
+
+    // ---------------------------------------------------------
+    // Move map to detected location
+    // ---------------------------------------------------------
+
+    map.setView(
+        [latitude, longitude],
+        15
+    );
+
+    // ---------------------------------------------------------
+    // Remove old marker
+    // ---------------------------------------------------------
+
+    if (marker !== null) {
+        map.removeLayer(marker);
+    }
+
+    // ---------------------------------------------------------
+    // Add image-location marker
+    // ---------------------------------------------------------
+
+    marker =
+        L.marker(
+            [latitude, longitude]
+        ).addTo(map);
+
+    const googleMapsUrl =
+        "https://www.google.com/maps/dir/?api=1&destination=" +
+        latitude.toFixed(6) + "," + longitude.toFixed(6);
+
+    marker.bindPopup(
+        "<strong>📷 Photo Location</strong>" +
+        "<br>" +
+        "Latitude: " +
+        latitude.toFixed(6) +
+        "<br>" +
+        "Longitude: " +
+        longitude.toFixed(6) +
+        "<br>" +
+        "Source: " +
+        source +
+        "<br><br>" +
+        "<a href=\"" + googleMapsUrl + "\" target=\"_blank\" rel=\"noopener\">📍 Open in Google Maps</a>"
+    );
+
+    marker.openPopup();
+
+    // ---------------------------------------------------------
+    // Start the existing satellite analysis
+    // ---------------------------------------------------------
+
+    forestImageMessage.textContent =
+        "✅ Forest location found at " +
+        latitude.toFixed(6) +
+        ", " +
+        longitude.toFixed(6) +
+        ". Starting satellite analysis...";
+
+    // Keep the public-report form synchronized with the
+    // GPS location found in the uploaded photo.
+    if (typeof setReportLocation === "function") {
+        setReportLocation(latitude, longitude);
+    }
+
+    analyzeLocation(
+        latitude,
+        longitude
+    );
+}
+
+
+// =========================================================
+// SEARCH FOREST BY NAME
+
+// =========================================================
+
+const forestSearchButton =
+    document.getElementById("searchForestButton");
+
+if (forestSearchButton) {
+    forestSearchButton.addEventListener(
+        "click",
+        searchForestByName
+    );
+}
+
+const forestNameInput =
+    document.getElementById("forestName");
+
+if (forestNameInput) {
+    forestNameInput.addEventListener(
+        "keydown",
+        function(event) {
+            if (event.key === "Enter") {
+                searchForestByName();
+            }
+        }
+    );
+}
+
+async function searchForestByName() {
+
+    const nameInput =
+        document.getElementById("forestName");
+
+    const messageElement =
+        document.getElementById("forestSearchMessage");
+
+    const forestName =
+        nameInput.value.trim();
+
+    messageElement.textContent = "";
+
+    if (forestName === "") {
+        messageElement.textContent =
+            "❌ Please enter a forest name.";
+        return;
+    }
+
+    messageElement.textContent =
+        "🔎 Searching for the forest...";
+
+    try {
+
+        /*
+         * Public OpenStreetMap Nominatim geocoding service.
+         * This finds the geographical location of the
+         * forest/place name.
+         */
+        const url =
+            "https://nominatim.openstreetmap.org/search" +
+            "?format=jsonv2" +
+            "&q=" +
+            encodeURIComponent(forestName) +
+            "&limit=5" +
+            "&addressdetails=1";
+
+        const response =
+            await fetch(url, {
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+        if (!response.ok) {
+            throw new Error(
+                "Forest location search failed."
+            );
+        }
+
+        const results =
+            await response.json();
+
+        if (!Array.isArray(results) || results.length === 0) {
+            messageElement.textContent =
+                "❌ Forest not found. Try a more complete name.";
+            return;
+        }
+
+        /*
+         * Prefer results that look like forests,
+         * national parks, reserves, sanctuaries, etc.
+         */
+        const preferredResult =
+            results.find(function(result) {
+
+                const text = (
+                    (result.display_name || "") +
+                    " " +
+                    (result.type || "") +
+                    " " +
+                    (result.class || "")
+                ).toLowerCase();
+
+                return (
+                    text.includes("forest") ||
+                    text.includes("national park") ||
+                    text.includes("wildlife") ||
+                    text.includes("sanctuary") ||
+                    text.includes("reserve") ||
+                    text.includes("protected")
+                );
+
+            }) || results[0];
+
+        const latitude =
+            Number(preferredResult.lat);
+
+        const longitude =
+            Number(preferredResult.lon);
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
+            throw new Error(
+                "The search returned an invalid location."
+            );
+        }
+
+        // Move map to the forest.
+        map.setView(
+            [latitude, longitude],
+            13
+        );
+
+        // Remove old point marker.
+        if (marker !== null) {
+            map.removeLayer(marker);
+        }
+
+        // Add forest marker.
+        marker =
+            L.marker(
+                [latitude, longitude]
+            ).addTo(map);
+
+        marker.bindPopup(
+            "<strong>🌳 " +
+            escapeHtml(
+                preferredResult.display_name ||
+                forestName
+            ) +
+            "</strong>" +
+            "<br><br>" +
+            "Latitude: " +
+            latitude.toFixed(5) +
+            "<br>" +
+            "Longitude: " +
+            longitude.toFixed(5)
+        );
+
+        marker.openPopup();
+
+        messageElement.innerHTML =
+            "✅ Forest located: <strong>" +
+            escapeHtml(
+                preferredResult.display_name ||
+                forestName
+            ) +
+            "</strong><br>" +
+            "📍 " +
+            latitude.toFixed(5) +
+            ", " +
+            longitude.toFixed(5);
+
+        // Use the existing satellite-analysis function.
+        analyzeLocation(
+            latitude,
+            longitude
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Forest search error:",
+            error
+        );
+
+        messageElement.textContent =
+            "❌ " +
+            (
+                error.message ||
+                "Unable to find the forest."
+            );
+    }
+}
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// =========================================================
+// SEARCH LOCATION USING COORDINATES
+// =========================================================
+
+const searchButton =
+    document.getElementById(
+        "searchCoordinateButton"
+    );
+
+if (searchButton) {
+
+    searchButton.addEventListener(
+        "click",
+        searchCoordinate
+    );
+
+}
+
+
+// =========================================================
+// SEARCH FUNCTION
+// =========================================================
+
+function searchCoordinate() {
+
+    const latitudeInput =
+        document.getElementById(
+            "searchLatitude"
+        ).value.trim();
+
+    const longitudeInput =
+        document.getElementById(
+            "searchLongitude"
+        ).value.trim();
+
+    const errorElement =
+        document.getElementById(
+            "coordinateError"
+        );
+
+    // -----------------------------------------------------
+    // CLEAR OLD ERROR
+    // -----------------------------------------------------
+
+    errorElement.textContent = "";
+
+    // -----------------------------------------------------
+    // CHECK EMPTY VALUES
+    // -----------------------------------------------------
+
+    if (
+        latitudeInput === "" ||
+        longitudeInput === ""
+    ) {
+
+        errorElement.textContent =
+            "❌ Please enter both latitude and longitude.";
+
+        return;
+
+    }
+
+    const latitude =
+        Number(latitudeInput);
+
+    const longitude =
+        Number(longitudeInput);
+
+    // -----------------------------------------------------
+    // CHECK VALID NUMBERS
+    // -----------------------------------------------------
+
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+
+        errorElement.textContent =
+            "❌ Please enter valid numeric coordinates.";
+
+        return;
+
+    }
+
+    // -----------------------------------------------------
+    // LATITUDE RANGE
+    // -----------------------------------------------------
+
+    if (
+        latitude < -90 ||
+        latitude > 90
+    ) {
+
+        errorElement.textContent =
+            "❌ Latitude must be between -90 and 90.";
+
+        return;
+
+    }
+
+    // -----------------------------------------------------
+    // LONGITUDE RANGE
+    // -----------------------------------------------------
+
+    if (
+        longitude < -180 ||
+        longitude > 180
+    ) {
+
+        errorElement.textContent =
+            "❌ Longitude must be between -180 and 180.";
+
+        return;
+
+    }
+
+    // -----------------------------------------------------
+    // MOVE MAP
+    // -----------------------------------------------------
+
+    map.setView(
+        [latitude, longitude],
+        15
+    );
+
+    // -----------------------------------------------------
+    // REMOVE OLD MARKER
+    // -----------------------------------------------------
+
+    if (marker !== null) {
+
+        map.removeLayer(marker);
+
+    }
+
+    // -----------------------------------------------------
+    // CREATE NEW MARKER
+    // -----------------------------------------------------
+
+    marker =
+        L.marker(
+            [latitude, longitude]
+        ).addTo(map);
+
+    marker.bindPopup(
+
+        "<strong>📍 Searched Location</strong>" +
+        "<br><br>" +
+        "Latitude: " +
+        latitude.toFixed(5) +
+        "<br>" +
+        "Longitude: " +
+        longitude.toFixed(5)
+
+    );
+
+    marker.openPopup();
+
+    // -----------------------------------------------------
+    // RUN THE SAME ANALYSIS AS MAP CLICK
+    // -----------------------------------------------------
+
+    analyzeLocation(
+        latitude,
+        longitude
+    );
+
+}
+
+
+// =========================================================
+// PRESS ENTER TO SEARCH
+// =========================================================
+
+document.getElementById(
+    "searchLatitude"
+).addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            searchCoordinate();
+
+        }
+
+    }
+);
+
+document.getElementById(
+    "searchLongitude"
+).addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            searchCoordinate();
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// BEFORE / AFTER TREE ANALYSIS - AI BOX VISUALIZATION
+// =========================================================
+
+(function setupTreeAnalysis() {
+    const beforeInput = document.getElementById("treeBeforeImage");
+    const afterInput = document.getElementById("treeAfterImage");
+    const beforePreview = document.getElementById("treeBeforePreview");
+    const afterPreview = document.getElementById("treeAfterPreview");
+    const analyzeButton = document.getElementById("prepareTreeAnalysisButton");
+    const clearButton = document.getElementById("clearTreeAnalysisButton");
+    const result = document.getElementById("treeAnalysisResult");
+    const beforeCanvas = document.getElementById("treeBeforeBoxes");
+    const afterCanvas = document.getElementById("treeAfterBoxes");
+
+    if (!beforeInput || !afterInput) return;
+
+    function previewFile(input, preview) {
+        const file = input.files && input.files[0];
+        if (!file) {
+            preview.style.display = "none";
+            preview.removeAttribute("src");
+            return;
+        }
+        if (preview.dataset.objectUrl) {
+            URL.revokeObjectURL(preview.dataset.objectUrl);
+        }
+        const url = URL.createObjectURL(file);
+        preview.dataset.objectUrl = url;
+        preview.src = url;
+        preview.style.display = "block";
+    }
+
+    beforeInput.addEventListener("change", function() {
+        previewFile(beforeInput, beforePreview);
+        result.style.display = "none";
+        beforeCanvas.style.display = "none";
+    });
+
+    afterInput.addEventListener("change", function() {
+        previewFile(afterInput, afterPreview);
+        result.style.display = "none";
+        afterCanvas.style.display = "none";
+    });
+
+    analyzeButton.addEventListener("click", function() {
+        const before = beforeInput.files && beforeInput.files[0];
+        const after = afterInput.files && afterInput.files[0];
+
+        if (!before || !after) {
+            result.style.display = "block";
+            result.innerHTML = "⚠️ Please upload both the <strong>before</strong> and <strong>after</strong> images.";
+            return;
+        }
+
+        result.style.display = "block";
+        result.innerHTML = "⏳ Loading free AI tree detector... The first run may take some time because the model is downloaded to the browser.";
+        runTreeAI(before, after, result);
+    });
+
+    async function runTreeAI(beforeFile, afterFile, resultElement) {
+        try {
+            if (!window.TreeAI || !window.TreeAI.pipeline) {
+                throw new Error("The browser AI library has not loaded yet. Please refresh and try again.");
+            }
+            if (!window.TreeAI.detector) {
+                resultElement.innerHTML = "⏳ Loading AI model (free, runs in your browser)...";
+                window.TreeAI.detector = await window.TreeAI.pipeline(
+                    "zero-shot-object-detection",
+                    "Xenova/owlvit-base-patch32"
+                );
+            }
+
+            // Pass browser object URLs rather than File objects. This is the most
+            // compatible input form for Transformers.js image pipelines.
+            const beforeUrl = URL.createObjectURL(beforeFile);
+            const afterUrl = URL.createObjectURL(afterFile);
+            let beforeResult = [];
+            let afterResult = [];
+            const prompts = [
+                "a tree",
+                "an individual tree",
+                "a tree crown",
+                "a green tree canopy",
+                "aerial view of trees",
+                "a forest"
+            ];
+            try {
+                resultElement.innerHTML = "🔎 AI is detecting tree-like objects in the BEFORE image...";
+                beforeResult = await window.TreeAI.detector(beforeUrl, prompts, { threshold: 0.025 });
+                resultElement.innerHTML = "🔎 AI is detecting tree-like objects in the AFTER image...";
+                afterResult = await window.TreeAI.detector(afterUrl, prompts, { threshold: 0.025 });
+            } finally {
+                URL.revokeObjectURL(beforeUrl);
+                URL.revokeObjectURL(afterUrl);
+            }
+
+            // Keep only valid boxes, then remove highly overlapping duplicate boxes
+            // returned for different prompts. A general zero-shot model may label
+            // canopy patches rather than individual trees, so counts remain estimates.
+            const keepTreeDetections = output => {
+                const items = (Array.isArray(output) ? output : [])
+                    .filter(x => x && x.box && Number.isFinite(Number(x.score)) && Number(x.score) >= 0.025)
+                    .sort((a,b) => Number(b.score)-Number(a.score));
+                const kept = [];
+                const iou = (a, b) => {
+                    const ax1=Number(a.xmin), ay1=Number(a.ymin), ax2=Number(a.xmax), ay2=Number(a.ymax);
+                    const bx1=Number(b.xmin), by1=Number(b.ymin), bx2=Number(b.xmax), by2=Number(b.ymax);
+                    const ix=Math.max(0,Math.min(ax2,bx2)-Math.max(ax1,bx1));
+                    const iy=Math.max(0,Math.min(ay2,by2)-Math.max(ay1,by1));
+                    const inter=ix*iy;
+                    const areaA=Math.max(0,ax2-ax1)*Math.max(0,ay2-ay1);
+                    const areaB=Math.max(0,bx2-bx1)*Math.max(0,by2-by1);
+                    return inter / Math.max(1, areaA+areaB-inter);
+                };
+                for (const item of items) {
+                    if (!kept.some(existing => iou(existing.box, item.box) >= 0.45)) kept.push(item);
+                }
+                return kept;
+            };
+            const beforeDetections = keepTreeDetections(beforeResult);
+            const afterDetections = keepTreeDetections(afterResult);
+            const beforeCount = beforeDetections.length;
+            const afterCount = afterDetections.length;
+
+            // Render a clearly visible copy of each image with AI boxes.
+            await drawDetectionBoxes(beforeFile, beforeDetections, beforeCanvas);
+            await drawDetectionBoxes(afterFile, afterDetections, afterCanvas);
+
+            async function drawDetectionBoxes(file, detections, canvas) {
+                const image = new Image();
+                const objectUrl = URL.createObjectURL(file);
+                try {
+                    await new Promise((resolve, reject) => {
+                        image.onload = resolve;
+                        image.onerror = reject;
+                        image.src = objectUrl;
+                    });
+                    const maxWidth = 900;
+                    const scale = Math.min(1, maxWidth / image.naturalWidth);
+                    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+                    const ctx = canvas.getContext("2d");
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                    ctx.lineWidth = Math.max(2, canvas.width / 350);
+                    ctx.font = `bold ${Math.max(12, canvas.width / 45)}px sans-serif`;
+                    detections.forEach((item, index) => {
+                        const b = item.box || {};
+                        const x1 = Number(b.xmin), y1 = Number(b.ymin);
+                        const x2 = Number(b.xmax), y2 = Number(b.ymax);
+                        if (![x1,y1,x2,y2].every(Number.isFinite)) return;
+                        const x = x1 * scale, y = y1 * scale;
+                        const w = (x2 - x1) * scale, h = (y2 - y1) * scale;
+                        if (w <= 0 || h <= 0) return;
+                        ctx.strokeStyle = "#ff2020";
+                        ctx.fillStyle = "rgba(255,32,32,0.10)";
+                        ctx.fillRect(x, y, w, h);
+                        ctx.strokeRect(x, y, w, h);
+                        const label = `${index + 1} · ${Math.round(Number(item.score || 0) * 100)}%`;
+                        const textWidth = ctx.measureText(label).width;
+                        const labelY = Math.max(0, y - Math.max(18, canvas.width / 40));
+                        ctx.fillStyle = "#ff2020";
+                        ctx.fillRect(x, labelY, textWidth + 8, Math.max(18, canvas.width / 40));
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillText(label, x + 4, labelY + Math.max(13, canvas.width / 55));
+                    });
+                    canvas.style.display = "block";
+                } finally {
+                    URL.revokeObjectURL(objectUrl);
+                }
+            }
+            const difference = Math.max(0, beforeCount - afterCount);
+            const increase = Math.max(0, afterCount - beforeCount);
+
+            resultElement.innerHTML =
+                "<strong>🌳 AI Tree Detection Complete</strong><br><br>" +
+                "📷 Before: <strong>" + beforeCount + " trees detected</strong><br>" +
+                "📷 After: <strong>" + afterCount + " trees detected</strong><br><br>" +
+                (difference > 0
+                    ? "🚨 <strong>" + difference + " fewer trees detected</strong><br>Possible tree removal: <strong>" + difference + "</strong>"
+                    : increase > 0
+                        ? "🌱 <strong>" + increase + " more trees detected</strong> in the after image."
+                        : "ℹ️ No difference in detected tree count.") +
+                "<div class='tree-analysis-note'>" +
+                "This is an AI detection estimate, not proof of tree removal. Camera angle, distance, occlusion, lighting, image quality and seasonal changes can affect the count. This general-purpose model may detect canopy patches rather than every individual tree." +
+                "</div>" +
+                ((beforeCount === 0 || afterCount === 0) ?
+                    "<div class='tree-analysis-note'><strong>Detection diagnostic:</strong> raw model outputs — before: " +
+                    (Array.isArray(beforeResult) ? beforeResult.length : 0) + ", after: " +
+                    (Array.isArray(afterResult) ? afterResult.length : 0) +
+                    ". If both are zero, check the browser console/network for model-loading errors. A tree-specific aerial imagery model may be needed for dense forest canopy.</div>" : "");
+        } catch (error) {
+            console.error("Tree AI error:", error);
+            resultElement.innerHTML = "❌ AI tree detection failed: " + (error.message || "Unknown error") +
+                "<div class='tree-analysis-note'>Check your internet connection and try again. The AI model runs locally in the browser after its model files are downloaded.</div>";
+        }
+    }
+
+    clearButton.addEventListener("click", function() {
+        beforeInput.value = "";
+        afterInput.value = "";
+        beforePreview.style.display = "none";
+        afterPreview.style.display = "none";
+        beforePreview.removeAttribute("src");
+        afterPreview.removeAttribute("src");
+        beforeCanvas.style.display = "none";
+        afterCanvas.style.display = "none";
+        beforeCanvas.width = beforeCanvas.height = 0;
+        afterCanvas.width = afterCanvas.height = 0;
+        result.style.display = "none";
+        result.innerHTML = "";
+    });
+})();
+</script>
+
+
+</body>
+
+</html> 

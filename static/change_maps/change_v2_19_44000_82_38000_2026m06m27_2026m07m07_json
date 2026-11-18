@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [], "metadata": {"latitude": 19.44, "longitude": 82.38, "before_date": "2026-06-27", "after_date": "2026-07-07", "threshold": -0.1, "changed_cells": 0, "grid_width": 96, "grid_height": 96, "note": "Pixel-level NDVI decrease candidate areas; not a legally authoritative forest boundary."}}
